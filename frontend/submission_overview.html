@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>作業繳交總覽 - 教師系統</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #6366f1;
+      --secondary-color: #06b6d4;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --bg-light: #f8fafc;
+      --bg-dark: #0f172a;
+      --card-light: #ffffff;
+      --card-dark: #1e293b;
+      --text-light: #1e293b;
+      --text-dark: #f1f5f9;
+      --text-muted-light: #64748b;
+      --text-muted-dark: #94a3b8;
+      --border-light: #e2e8f0;
+      --border-dark: #334155;
+      --shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-light);
+      color: var(--text-light);
+    }
+
+    [data-theme="dark"] body {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    .navbar {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-light);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    [data-theme="dark"] .navbar {
+      background: rgba(30,41,59,0.95);
+      border-bottom-color: var(--border-dark);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      /* 讓 Firefox 也支援漸層字色 */
+      /* 增加一點字距讓標題更醒目 */
+      letter-spacing: 1px;
+      display: inline-block;
+      /* 防止部分瀏覽器出現裁切 */
+    }
+
+    [data-theme="dark"] .navbar-brand {
+      background: linear-gradient(135deg, #a5b4fc, #67e8f9);
+      /* 深色模式下使用更亮的漸層 */
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn-success {
+      background: var(--success-color);
+      color: white;
+    }
+
+    .btn-success:hover {
+      opacity: 0.9;
+    }
+
+    .main-container {
+      max-width: 1000px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+   .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+      display: inline-block;
+    }
+
+    [data-theme="dark"] .page-title {
+      /* 深色模式下標題反白，避免糊成一塊 */
+      background: none;
+      -webkit-background-clip: initial;
+      -webkit-text-fill-color: #fff;
+      background-clip: initial;
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+
+    .page-subtitle {
+      color: var(--text-muted-light);
+      font-weight: 400;
+    }
+
+    [data-theme="dark"] .page-subtitle {
+      color: var(--text-muted-dark);
+    }
+
+    .card {
+      background: var(--card-light);
+      border: 1px solid var(--border-light);
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    [data-theme="dark"] .card {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-light);
+      text-align: left;
+    }
+
+    [data-theme="dark"] th, [data-theme="dark"] td {
+      border-color: var(--border-dark);
+    }
+
+    th {
+      font-weight: 600;
+      color: var(--text-muted-light);
+    }
+
+    [data-theme="dark"] th {
+      color: var(--text-muted-dark);
+    }
+
+    a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 6rem;
+      right: 2rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--card-light);
+      border: 2px solid var(--border-light);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    [data-theme="dark"] .theme-toggle {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    .footer-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .footer-buttons {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+
+    .main-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0.75rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .nav-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #6366f1, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    display: flex;
+    align-items: center;
+  }
+
+  .nav-link {
+    text-decoration: none;
+    color: #4f46e5;
+    padding: 0.4rem 1rem;
+    border: 2px solid #4f46e5;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: 0.2s;
+  }
+
+  .nav-link:hover {
+    background-color: #4f46e5;
+    color: white;
+  }
+
+  .nav-right .btn-logout {
+    background: transparent;
+    color: #ef4444;
+    border: 2px solid #ef4444;
+    padding: 0.4rem 1rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .btn-logout:hover {
+    background: #ef4444;
+    color: white;
+  }
+
+  .bi {
+    vertical-align: middle;
+  }
+  </style>
+</head>
+<body>
+  <!-- 主題切換 -->
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="切換主題">
+    <i class="bi bi-moon" id="theme-icon"></i>
+  </button>
+
+  <!-- 導覽列 -->
+  <nav class="main-navbar">
+    <div class="nav-left">
+      <div class="nav-brand">
+        <i class="bi bi-easel2-fill me-2"></i> 教師系統
+      </div>
+      <a href="teacher_upload.html" class="nav-link">作業管理</a>
+      <a href="classmember.html" class="nav-link">成員管理</a>
+    </div>
+    <div class="nav-right">
+      <button class="btn-logout" onclick="localStorage.removeItem('token'); location='login.html';">
+        <i class="bi bi-box-arrow-right me-1"></i> 登出
+      </button>
+    </div>
+  </nav>
+
+  <!-- 主內容 -->
+  <div class="main-container">
+    <div class="page-header">
+      <h1 class="page-title">作業繳交總覽</h1>
+      <p class="page-subtitle">查看學生的最高分與最後提交時間</p>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>學生名稱</th>
+            <th>最高分數</th>
+            <th>最後提交時間</th>
+          </tr>
+        </thead>
+        <tbody id="overview-list">
+          <tr><td colspan="3">載入中...</td></tr>
+        </tbody>
+      </table>
+
+      <div class="footer-buttons">
+        <button class="btn btn-outline" onclick="goBack()"><i class="bi bi-arrow-left me-1"></i> 返回</button>
+        <button class="btn btn-success" onclick="goHome()"><i class="bi bi-house-door me-1"></i> 首頁</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const backendURL = "http://192.168.0.89:8000";
+    const token = localStorage.getItem("token");
+    const params = new URLSearchParams(window.location.search);
+    const problemId = params.get("problem_id");
+
+    async function loadOverview() {
+      const res = await fetch(`${backendURL}/submission_overview/${problemId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      const list = document.getElementById("overview-list");
+      if (res.ok && Array.isArray(data)) {
+        if (data.length === 0) {
+          list.innerHTML = '<tr><td colspan="3">目前尚無繳交紀錄。</td></tr>';
+        } else {
+          list.innerHTML = data.map(record => {
+            // 轉換成台灣時間 (UTC+8)
+            let twTime = '';
+            if (record.last_submit) {
+              const date = new Date(record.last_submit);
+              date.setHours(date.getHours() + 8);
+              twTime = date.toLocaleString('zh-TW', { hour12: false });
+            }
+            return `
+              <tr>
+                <td><a href="submission_records.html?problem_id=${problemId}&user_id=${record.user_id}">
+                  ${record.real_name} ${record.student_id ?? ''}</a></td>
+                <td>${record.max_score}</td>
+                <td>${twTime}</td>
+              </tr>
+            `;
+          }).join("");
+                  }
+                } else {
+                  list.innerHTML = '<tr><td colspan="3">載入失敗，請稍後再試。</td></tr>';
+                }
+              }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      document.body.setAttribute('data-theme', next); // 修正: 同步 body 的 data-theme
+      themeIcon.className = next === 'dark' ? 'bi bi-sun' : 'bi bi-moon';
+      localStorage.setItem('theme', next);
+    }
+
+    function loadTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.body.setAttribute('data-theme', saved); // 修正: 同步 body 的 data-theme
+      document.getElementById('theme-icon').className = saved === 'dark' ? 'bi bi-sun' : 'bi bi-moon';
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      location.href = 'login.html';
+    }
+
+    function goBack() {
+      window.history.back();
+    }
+
+    function goHome() {
+      window.location.href = "teacher_upload.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadTheme();
+      loadOverview();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>學生程式碼繳交與評分</title>
+
+  <!-- 核心資源 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary-color: #06b6d4;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      
+      --bg-light: #f8fafc;
+      --bg-dark: #0f172a;
+      --card-light: #ffffff;
+      --card-dark: #1e293b;
+      --text-light: #1e293b;
+      --text-dark: #f1f5f9;
+      --text-muted-light: #64748b;
+      --text-muted-dark: #94a3b8;
+      --border-light: #e2e8f0;
+      --border-dark: #334155;
+      
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--bg-light) 0%, #e2e8f0 100%);
+      color: var(--text-light);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    [data-theme="dark"] body {
+      background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
+      color: var(--text-dark);
+    }
+    /* 修正暗色模式導覽列文字顏色 */
+    [data-theme="dark"] .navbar {
+      background: rgba(30, 41, 59, 0.95) !important;
+      border-bottom-color: var(--border-dark);
+    }
+
+    [data-theme="dark"] .nav-link {
+      color: var(--text-dark) !important;
+    }
+
+    [data-theme="dark"] .nav-link:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary-color) !important;
+    }
+
+    [data-theme="dark"] .nav-link.active {
+      background: var(--primary-color);
+      color: white !important;
+    }
+
+    /* 導覽列樣式 */
+    .navbar {
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-light);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    [data-theme="dark"] .navbar {
+      background: rgba(30, 41, 59, 0.95) !important;
+      border-bottom-color: var(--border-dark);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      position: relative;
+      padding: 0.75rem 1rem !important;
+      border-radius: 0.5rem;
+      margin: 0 0.25rem;
+    }
+
+    .nav-link:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary-color) !important;
+    }
+
+    .nav-link.active {
+      background: var(--primary-color);
+      color: white !important;
+    }
+
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 2px;
+      background: var(--primary-color);
+      border-radius: 1px;
+    }
+
+    /* 主題切換按鈕 */
+    .theme-toggle {
+      position: fixed;
+      top: 6rem;
+      right: 2rem;
+      z-index: 999;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--card-light);
+      border: 2px solid var(--border-light);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: var(--shadow-xl);
+    }
+
+    [data-theme="dark"] .theme-toggle {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    /* 主要容器 */
+    .main-container {
+      padding: 3rem 0;
+      min-height: calc(100vh - 200px);
+    }
+
+    /* 頁面標題 */
+    .page-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .page-title {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted-light);
+      font-weight: 400;
+    }
+
+    [data-theme="dark"] .page-subtitle {
+      color: var(--text-muted-dark);
+    }
+
+    /* 主要卡片樣式 */
+    .main-card {
+      background: var(--card-light);
+      border-radius: 1.5rem;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    [data-theme="dark"] .main-card {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .card-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .title-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .card-body {
+      padding: 2.5rem;
+    }
+
+    /* 表單樣式 */
+    .form-section {
+      margin-bottom: 2rem;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: var(--text-light);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    [data-theme="dark"] .form-label {
+      color: var(--text-dark);
+    }
+
+    .form-select,
+    .form-control {
+      border: 2px solid var(--border-light);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      font-size: 1rem;
+      background: var(--card-light);
+      color: var(--text-light);
+      transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] .form-select,
+    [data-theme="dark"] .form-control {
+      border-color: var(--border-dark);
+      background: var(--card-dark);
+      color: var(--text-dark);
+    }
+
+    .form-select:focus,
+    .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25);
+    }
+
+    /* 上傳區域樣式 */
+    .upload-box {
+      border: 2px dashed var(--border-light);
+      padding: 3rem 2rem;
+      text-align: center;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(6, 182, 212, 0.05));
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    [data-theme="dark"] .upload-box {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1));
+      border-color: var(--border-dark);
+      color: var(--text-muted-dark);
+    }
+
+    .upload-box:hover {
+      border-color: var(--primary-color);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1));
+      transform: translateY(-2px);
+    }
+
+    .upload-box::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+    }
+
+    .upload-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .upload-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--text-muted-light);
+    }
+
+    [data-theme="dark"] .upload-text {
+      color: var(--text-muted-dark);
+    }
+
+    /* 按鈕樣式 */
+    .btn-section {
+      text-align: center;
+      margin: 2rem 0;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.75rem 2rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-outline-secondary {
+      background: transparent;
+      border: 2px solid var(--border-light);
+      color: var(--text-muted-light);
+    }
+
+    [data-theme="dark"] .btn-outline-secondary {
+      border-color: var(--border-dark);
+      color: var(--text-muted-dark);
+    }
+
+    .btn-outline-secondary:hover {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .btn-outline-danger {
+      background: transparent;
+      border: 2px solid var(--danger-color);
+      color: var(--danger-color);
+    }
+
+    .btn-outline-danger:hover {
+      background: var(--danger-color);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* 預覽和回饋區域 */
+    .preview-box, 
+    .feedback-box {
+      background: var(--card-light);
+      border: 2px solid var(--border-light);
+      border-left: 4px solid var(--primary-color);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      color: var(--text-light);
+      margin-top: 1rem;
+      box-shadow: var(--shadow);
+    }
+
+    [data-theme="dark"] .preview-box,
+    [data-theme="dark"] .feedback-box {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+      color: var(--text-dark);
+    }
+
+    .result-header {
+      font-weight: 600;
+      color: var(--text-muted-light);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    [data-theme="dark"] .result-header {
+      color: var(--text-muted-dark);
+    }
+
+    /* 排隊覆蓋層 */
+    #queueOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(15px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      display: none;
+    }
+
+    .queue-content {
+      text-align: center;
+      background: var(--card-light);
+      padding: 3rem 2rem;
+      border-radius: 2rem;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--border-light);
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    [data-theme="dark"] .queue-content {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    .queue-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+      animation: shimmerQueue 2s infinite;
+    }
+
+    @keyframes shimmerQueue {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    .queue-icon {
+      font-size: 4rem;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { 
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% { 
+        transform: scale(1.1);
+        opacity: 0.8;
+      }
+    }
+
+    .queue-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-bottom: 1rem;
+    }
+
+    [data-theme="dark"] .queue-title {
+      color: var(--text-dark);
+    }
+
+    .queue-number {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      animation: bounce 1s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+
+    .queue-text {
+      font-size: 1.1rem;
+      color: var(--text-muted-light);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    [data-theme="dark"] .queue-text {
+      color: var(--text-muted-dark);
+    }
+
+    .queue-progress {
+      width: 100%;
+      height: 8px;
+      background: var(--border-light);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    [data-theme="dark"] .queue-progress {
+      background: var(--border-dark);
+    }
+
+    .queue-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      animation: progressPulse 2s infinite;
+    }
+
+    @keyframes progressPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .queue-status {
+      font-size: 0.9rem;
+      color: var(--text-muted-light);
+      font-weight: 500;
+    }
+
+    [data-theme="dark"] .queue-status {
+      color: var(--text-muted-dark);
+    }
+
+    /* Toast 容器 */
+    #toast-container {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      z-index: 1050;
+    }
+
+    .toast {
+      border-radius: 1rem;
+      box-shadow: var(--shadow-lg);
+      border: none;
+    }
+
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      .theme-toggle {
+        top: 5rem;
+        right: 1rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+      }
+
+      .card-header {
+        padding: 1.5rem;
+      }
+
+      .card-title {
+        font-size: 1.5rem;
+      }
+
+      .card-body {
+        padding: 1.5rem;
+      }
+
+      .btn-section {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .upload-box {
+        padding: 2rem 1rem;
+      }
+
+      .upload-icon {
+        font-size: 2rem;
+      }
+
+      .queue-content {
+        padding: 2rem 1.5rem;
+      }
+
+      .queue-icon {
+        font-size: 3rem;
+      }
+
+      .queue-title {
+        font-size: 1.5rem;
+      }
+
+      .queue-number {
+        font-size: 2.5rem;
+      }
+    }
+
+    /* 動畫效果 */
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .slide-up {
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 主題切換按鈕 -->
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="切換主題">
+    <i class="fas fa-moon" id="theme-icon"></i>
+  </button>
+
+  <!-- 導覽列 -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-graduation-cap me-2"></i>學生系統
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="index.html"><i class="fas fa-code me-1"></i>程式碼繳交</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/static/homework.html"><i class="fas fa-tasks me-1"></i>觀看題目</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/static/student_history.html"><i class="fas fa-history me-1"></i>繳交紀錄</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/static/progress.html"><i class="fas fa-chart-line me-1"></i>學習進度</a>
+          </li>
+
+        </ul>
+        <a href="homepage.html" class="btn btn-outline-danger"><i class="fas fa-sign-out-alt me-1"></i>登出</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 排隊覆蓋層 -->
+  <div id="queueOverlay" style="display:none;">
+    <div class="queue-content">
+      <div class="queue-icon"><i class="fas fa-hourglass-half"></i></div>
+      <div class="queue-title">正在排隊批改中</div>
+      <div class="queue-number" id="queueNumber">5</div>
+      <div class="queue-text">
+        前面還有 <span id="queueCount">5</span> 位同學正在等待批改<br>
+        預計等待時間約 <span id="estimatedTime">2-3</span> 分鐘
+      </div>
+      <div class="queue-progress">
+        <div class="queue-progress-bar" id="progressBar" style="width: 20%;"></div>
+      </div>
+      <div class="queue-status" id="queueStatus">正在處理中...</div>
+    </div>
+  </div>
+
+  <!-- 主要內容 -->
+  <div class="container main-container">
+    <div class="page-header fade-in">
+      <h1 class="page-title">程式碼繳交與評分</h1>
+      <p class="page-subtitle">上傳您的程式碼，讓 AI 為您提供即時評分與回饋</p>
+    </div>
+
+    <div class="main-card slide-up">
+      <div class="card-header">
+        <h2 class="card-title">
+          <div class="title-icon"><i class="fas fa-code"></i></div>
+          程式碼繳交系統
+        </h2>
+      </div>
+
+      <div class="card-body">
+        <!-- 題目選擇 -->
+        <div class="form-section">
+          <label class="form-label"><i class="fas fa-book"></i>選擇題目</label>
+          <select id="problemSelect" class="form-select">
+            <option value="">請選擇題目</option>
+          </select>
+        </div>
+
+        <!-- 語言選擇 -->
+        <div class="form-section">
+          <label for="lang" class="form-label"><i class="fas fa-language"></i>選擇語言：</label>
+          <select id="lang" class="form-select">
+            <option value="">請選擇語言</option>
+            <option value="py">Python (.py)</option>
+            <option value="c">C (.c)</option>
+            <option value="cpp">C++ (.cpp)</option>
+          </select>
+        </div>
+
+        <!-- AI 評分模型 -->
+        <div class="form-section" id="llmRow">
+          <label for="llmProvider" class="form-label"><i class="fas fa-robot"></i> AI 評分模型</label>
+          <select id="llmProvider" class="form-select" style="max-width: 260px;">
+            <option value="gemini">Gemini（雲端）</option>
+            <option value="codellama" selected>Code Llama（本機）</option>
+          </select>
+          <small class="text-muted">※ 選擇 Gemini 需後端已設定 GEMINI_API_KEY。</small>
+        </div>
+
+        <!-- 上傳檔案 -->
+        <div class="form-section">
+          <label class="form-label"><i class="fas fa-cloud-upload-alt"></i>上傳程式碼檔案</label>
+          <label for="fileInput" class="upload-box" id="uploadLabel">
+            <div class="upload-content">
+              <div class="upload-icon"><i class="fas fa-file-code"></i></div>
+              <div class="upload-text">拖曳或點擊這裡上傳檔案<br><small>支援 .py, .cpp, .c, .java, .txt</small></div>
+            </div>
+            <input type="file" id="fileInput" accept=".py,.c,.cpp,.java,.txt" hidden>
+          </label>
+        </div>
+
+        <!-- 程式碼輸入 -->
+        <div class="form-section">
+          <label class="form-label"><i class="fas fa-edit"></i>直接貼上程式碼</label>
+          <textarea id="codeText" class="form-control" rows="12" placeholder="請在此貼上您的程式碼..."></textarea>
+        </div>
+
+        <!-- 操作按鈕 -->
+        <div class="btn-section">
+          <button class="btn btn-outline-secondary" onclick="previewCode()"><i class="fas fa-eye me-2"></i>預覽程式碼</button>
+          <button class="btn btn-primary" onclick="gradeCode()"><i class="fas fa-paper-plane me-2"></i>繳交並評分</button>
+        </div>
+
+        <!-- 預覽區 -->
+        <div id="previewBoxContainer" class="d-none"></div>
+
+        <!-- Loading動畫 -->
+        <div id="loadingSpinnerContainer" class="text-center py-5 d-none">
+          <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3 text-muted">正在分析與生成回饋...</p>
+        </div>
+
+        <!-- AI 回饋區 -->
+        <div id="feedbackBoxContainer" class="d-none">
+          <h6 class="result-header">
+            <i class="fas fa-robot"></i> AI 評分與回饋
+          </h6>
+          <div id="feedbackBox" class="feedback-box"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast-container"></div>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // DOM 元素
+    const fileInput = document.getElementById("fileInput");
+    const codeText = document.getElementById("codeText");
+    const previewBox = document.getElementById("previewBox");
+    const previewContainer = document.getElementById("previewBoxContainer");
+    const feedbackBox = document.getElementById("feedbackBox");
+    const feedbackContainer = document.getElementById("feedbackBoxContainer");
+
+    // 排隊相關變數
+    let queueInterval;
+    let currentQueuePosition = 0;
+    function hideQueue() {
+    const overlay = document.getElementById("queueOverlay");
+    if (overlay) overlay.style.display = "none";
+    }
+
+    // 檔案上傳處理
+    fileInput.addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          codeText.value = e.target.result;
+          showToast(`檔案 "${file.name}" 載入成功`, "success");
+        };
+        reader.readAsText(file);
+      }
+    });
+    // 新增：輪詢任務結果的函式
+    // 最終版：輪詢任務結果並控制動畫的函式
+    // 保留 queueOverlay 顯示，直到 task.status === "done"
+    function pollForResults(taskId) {
+      const intervalId = setInterval(async () => {
+        try {
+          const res = await fetch(`http://localhost:8000/batch_grade/status/${taskId}`);
+          if (!res.ok) return;
+
+          const task = await res.json();
+          const progressBar = document.getElementById("progressBar");
+          const progress = task.total > 0 ? (task.finished / task.total) * 100 : 0;
+          if (progressBar) progressBar.style.width = `${progress}%`;
+
+          document.getElementById("queueStatus").textContent = 
+            `批改進度: ${task.finished} / ${task.total}`;
+
+          // ✅ 在等待中不隱藏 overlay
+          if (task.status === "done") {
+            clearInterval(intervalId);
+            hideQueue();
+            setTimeout(() => displayResults(task.results), 800);
+          } else {
+            // 更新等待資訊
+            await updateQueueExtraInfo(taskId);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }, 3000);
+    }
+
+
+    // 新增：將結果顯示在畫面上的函式
+    // 強化版：將結果顯示在畫面上的函式
+    // 最終版：將結果顯示在畫面上的函式
+    function displayResults(results) {
+      // 在函式一開始就隱藏載入動畫
+      const loadingSpinner = document.getElementById("loadingSpinnerContainer");
+      if (loadingSpinner) {
+        loadingSpinner.classList.add("d-none");
+      }
+
+      // 安全檢查
+      if (!Array.isArray(results) || results.length === 0) {
+        feedbackBox.textContent = "❗ 批改完成，但未收到任何結果。";
+        feedbackContainer.classList.remove("d-none");
+        showToast("批改結果為空", "warning");
+        return;
+      }
+
+      const result = results[0];
+      if (!result) {
+          feedbackBox.textContent = "❗ 收到的批改結果格式不正確。";
+          feedbackContainer.classList.remove("d-none");
+          showToast("結果格式錯誤", "danger");
+          return;
+      }
+
+      if (result.error) {
+        feedbackBox.textContent = `❗ 批改時發生錯誤：\n${result.error}`;
+        showToast("批改失敗", "danger");
+      } else {
+        const detailedResultsArray = Array.isArray(result.detailed_results) ? result.detailed_results : [];
+        const correctCount = detailedResultsArray.filter(r => r.correct).length;
+        const total = detailedResultsArray.length;
+        const correctRate = total > 0 ? ((correctCount / total) * 100).toFixed(1) : "0.0";
+        const detail = `\n✅ 測資通過率：${correctCount} / ${total} (${correctRate}%)\n`;
+
+        const feedbackText =
+            `⭐ AI 評分：${result.ai_score ?? 'N/A'}/100\n` +
+            `📋 AI 回饋：\n${result.ai_feedback ?? '無回饋'}\n\n` +
+            `🧪 測資結果：${result.overall_correct ? "✅ 全部通過" : "❌ 部分錯誤"}\n` +
+            detail;
+        
+        feedbackBox.textContent = feedbackText;
+        showToast("評分完成！", "success");
+      }
+
+      feedbackContainer.classList.remove("d-none");
+      feedbackContainer.scrollIntoView({ behavior: "smooth" });
+    }
+
+    // 載入保存的主題
+    function loadTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      
+      html.setAttribute('data-theme', savedTheme);
+      themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // 顯示排隊狀態
+    async function showQueue(initialPosition = 5, taskId) {
+      currentQueuePosition = initialPosition;
+      updateQueueDisplay();
+      document.getElementById("queueOverlay").style.display = "flex";
+
+      // 額外顯示目前總等待人數（首次顯示）
+      await updateQueueExtraInfo(taskId);
+
+      queueInterval = setInterval(async () => {
+        const pos = await getCurrentQueuePosition(taskId);
+        currentQueuePosition = pos;
+        updateQueueDisplay();
+
+        await updateQueueExtraInfo(taskId);
+
+      if (currentQueuePosition <= 0) {
+                clearInterval(queueInterval);
+                // 當排隊結束後，我們不再呼叫舊的評分函式
+                // 而是讓輪詢結果的機制接手
+              }
+      }, 2000);
+    }
+
+    async function updateQueueExtraInfo(taskId) {
+      const waitingCount = await getWaitingCount();
+      const avgSecondsPerTask = 30; // 每位同學平均批改時間 (可自行調整)
+      const estimatedSeconds = waitingCount * avgSecondsPerTask;
+      const estimatedMinutes = Math.ceil(estimatedSeconds / 60);
+
+      const queueTextEl = document.getElementById("queueCount");
+      if (queueTextEl) {
+        queueTextEl.parentElement.innerHTML = `
+          前面還有 <span id="queueCount">${currentQueuePosition}</span> 位同學正在等待批改<br>
+          <span style="color:#6366f1;font-weight:600;">目前總共 ${waitingCount} 人在等待</span><br>
+          預計等待時間約 <span id="estimatedTime">${estimatedMinutes}</span> 分鐘
+        `;
+      }
+    }
+
+
+    // 查詢目前總等待人數（後端API）
+    async function getWaitingCount() {
+      try {
+        const res = await fetch("http://localhost:8000/queue/waiting_count");
+        const data = await res.json();
+        return data.waiting_count ?? 0;
+      } catch (err) {
+        return 0;
+      }
+    }
+
+    // 查詢你前面有幾人（後端API）
+    async function getCurrentQueuePosition(taskId) {
+      try {
+        const res = await fetch(`http://localhost:8000/queue/position?task_id=${taskId}`);
+        const data = await res.json();
+        // data.waiting: 前面有幾人
+        return typeof data.waiting === "number" ? data.waiting : 0;
+      } catch (err) {
+        console.error("獲取等待人數失敗:", err);
+        return 0;
+      }
+    }
+
+
+    // 預覽程式碼
+    function previewCode() {
+      const code = codeText.value.trim();
+      if (code) {
+        previewBox.textContent = code;
+        previewContainer.classList.remove("d-none");
+        previewContainer.scrollIntoView({ behavior: 'smooth' });
+        showToast("程式碼預覽已生成", "info");
+      } else {
+        showToast("請先輸入或上傳程式碼", "warning");
+      }
+    }
+
+    // 執行實際評分
+    async function performActualGrading() {
+      const selectedProblemId = document.getElementById("problemSelect").value;
+      const code = codeText.value.trim();
+      const token = localStorage.getItem("token");
+
+      // ① 讀語言選擇 → 決定副檔名 → 組 filename
+      const langEl = document.getElementById("lang"); // 若沒放語言下拉，會是 null
+      const lang = langEl ? langEl.value : "py";
+      const filename =
+        lang === "c"   ? "Main.c"   :
+        lang === "cpp" ? "Main.cpp" :
+                        "Main.py"; // 預設 Python
+
+      if (!code) {
+        showToast("請先輸入或貼上程式碼", "warning");
+        return;
+      }
+
+      try {
+        const providerEl = document.getElementById("llmProvider");
+        const provider = providerEl ? providerEl.value : "codellama";
+
+        const response = await fetch(`http://localhost:8000/combined_grade?problem_id=${selectedProblemId}&model=${provider}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            // ② 多帶 filename 給後端（後端會依副檔名決定 Python/C/C++）
+            body: JSON.stringify({ code, filename })
+          }
+        );
+
+        const result = await response.json();
+
+        if (response.ok) {
+          // ③ 顯示測資通過率
+          const details = Array.isArray(result.detailed_results)
+            ? result.detailed_results
+            : (typeof result.detailed_results === "string"
+                ? (() => { try { return JSON.parse(result.detailed_results); } catch { return []; } })()
+                : []);
+
+          const correctCount = details.filter(r => r && (r.correct === true || r.correct === "true")).length;
+          const total = details.length;
+          const correctRate = total > 0 ? ((correctCount / total) * 100).toFixed(1) : "0.0";
+          const detail = `\n✅ 測資通過率：${correctCount}/${total} (${correctRate}%)\n`;
+
+          const feedbackText =
+            `⭐ AI 評分：${result.ai_score}/100\n` +
+            `📋 AI 回饋：\n${result.ai_feedback}\n\n` +
+            `🧪 測資結果：${result.overall_correct ? "✅ 全部通過" : "❌ 有錯誤"}\n` +
+            detail;
+
+          feedbackBox.textContent = feedbackText;
+          feedbackContainer.classList.remove("d-none");
+          feedbackContainer.scrollIntoView({ behavior: "smooth" });
+          showToast("評分完成！", "success");
+        } else {
+          feedbackBox.textContent = `❗ 錯誤：${result.detail ?? "未知錯誤"}`;
+          feedbackContainer.classList.remove("d-none");
+          showToast("評分失敗", "danger");
+        }
+      } catch (error) {
+        console.error(error);
+        showToast("無法連接後端服務", "danger");
+      }
+    }
+
+
+    // 評分功能（主要入口）
+// 評分功能（主要入口）
+    async function gradeCode() {
+      const selectedProblemId = document.getElementById("problemSelect").value;
+      const code = codeText.value.trim();
+      const langEl = document.getElementById("lang");
+      const lang = langEl ? langEl.value : "py";
+      const filename =
+        lang === "c"   ? "Main.c"   :
+        lang === "cpp" ? "Main.cpp" :
+                        "Main.py";
+
+      if (!selectedProblemId || !code) {
+        showToast("請選擇題目並輸入程式碼", "danger");
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem("token");
+        // ⭐ 送出正確格式給 batch_grade
+        const payload = {
+          files: [{
+            filename,
+            code,
+            problem_id: Number(selectedProblemId)
+          }]
+        };
+        const providerEl = document.getElementById("llmProvider");
+        const provider = providerEl ? providerEl.value : "codellama";
+
+        const res = await fetch(`http://localhost:8000/batch_grade?problem_id=${selectedProblemId}&model=${provider}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        
+        if (!res.ok || !data.task_id) {
+            // ... (錯誤處理不變)
+            return;
+        }
+
+        const taskId = data.task_id;
+
+        // 查詢目前等待人數（改用真實 API）
+        let queuePosition = await getCurrentQueuePosition(taskId);
+        if (typeof queuePosition !== "number" || isNaN(queuePosition)) queuePosition = 0;
+
+        showToast(`已加入評分隊列，前面有 ${queuePosition} 人`, "info");
+
+        // ✅ 強制顯示 queueOverlay
+        const overlay = document.getElementById("queueOverlay");
+        if (overlay) {
+          overlay.style.display = "flex";
+        }
+
+        // ✅ 顯示目前排隊資訊
+        document.getElementById("queueCount").textContent = queuePosition;
+        document.getElementById("queueStatus").textContent = "正在等待批改中...";
+        document.getElementById("queueNumber").textContent = queuePosition;
+        document.getElementById("estimatedTime").textContent = "約 " + Math.ceil(queuePosition * 0.5) + " 分鐘";
+
+        // ✅ 啟動更新與結果輪詢
+        showQueue(queuePosition, taskId);
+        pollForResults(taskId);
+
+        
+        // ⭐⭐ 在這裡新增一行，啟動結果輪詢 ⭐⭐
+        pollForResults(taskId); 
+
+      } catch (error) {
+        console.error("無法提交批改:", error);
+        showToast("提交失敗，請稍後再試", "danger");
+      }
+    }
+
+
+
+    // Toast 通知
+    function showToast(message, type = "info") {
+      const toast = document.createElement("div");
+      toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
+      toast.role = "alert";
+      toast.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">${message}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>`;
+      document.getElementById("toast-container").appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    // 主題切換
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme");
+      const next = current === "light" ? "dark" : "light";
+      html.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      
+      const themeIcon = document.getElementById('theme-icon');
+      themeIcon.className = next === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // 初始化
+    document.addEventListener("DOMContentLoaded", async function () {
+      // 載入主題
+      const savedTheme = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      const themeIcon = document.getElementById('theme-icon');
+      themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+
+      // 載入題目列表
+      try {
+        const res = await fetch("http://localhost:8000/problems");
+        const problems = await res.json();
+        const problemSelect = document.getElementById("problemSelect");
+        problems.forEach(problem => {
+          const option = document.createElement("option");
+          option.value = problem.id;
+          option.textContent = problem.title;
+          problemSelect.appendChild(option);
+        });
+      } catch (error) {
+        showToast("無法載入題目列表", "danger");
+      }
+
+      // 點擊排隊覆蓋層外部區域可以取消排隊（可選功能）
+      document.getElementById("queueOverlay").addEventListener("click", function(e) {
+        if (e.target === this) {
+          if (confirm("確定要取消排隊嗎？")) {
+            hideQueue();
+            showToast("已取消排隊", "info");
+          }
+        }
+      });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

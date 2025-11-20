@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>台東大學 程式碼繳交平台</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: #f8f9fa;
+    }
+    .hero {
+      background: linear-gradient(to right, #2c3e50, #3498db);
+      color: white;
+      padding: 100px 0;
+      text-align: center;
+    }
+    .feature-icon {
+      font-size: 3rem;
+      color: #3498db;
+    }
+    footer {
+      background-color: #343a40;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 導覽列 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="#">台東大學 程式平台</a>
+    <div class="ms-auto">
+      <a href="/static/login.html" class="btn btn-outline-light me-2">登入</a>
+      <a href="/static/login.html" class="btn btn-light">註冊</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero 區域 -->
+<section class="hero">
+  <div class="container">
+    <h1 class="display-4 fw-bold">學生程式碼繳交與評分平台</h1>
+    <p class="lead mt-3">即時提交、AI 評分、成效追蹤，提升你的程式能力！</p>
+    <a href="/static/login.html" class="btn btn-primary btn-lg mt-4">立即開始</a>
+  </div>
+</section>
+
+<!-- 功能區塊 -->
+<section class="py-5">
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <div class="feature-icon mb-3">💻</div>
+            <h5 class="card-title">程式碼繳交</h5>
+            <p class="card-text">支援多種語言，上傳程式碼並自動測試。</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <div class="feature-icon mb-3">📊</div>
+            <h5 class="card-title">自動評分</h5>
+            <p class="card-text">根據題目測資自動評分，顯示每次的詳細結果。</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <div class="feature-icon mb-3">🤖</div>
+            <h5 class="card-title">AI 助教</h5>
+            <p class="card-text">提供即時建議與解題回饋，幫助你快速進步。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p class="mb-1">聯絡我們：11111131@nttu.edu.tw</p>
+    <p class="mb-0">© 2025 國立台東大學 資訊工程系</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

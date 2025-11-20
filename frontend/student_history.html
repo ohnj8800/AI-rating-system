@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>繳交紀錄 - 學生系統</title>
+
+  <!-- 核心資源 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary-color: #06b6d4;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      
+      --bg-light: #f8fafc;
+      --bg-dark: #0f172a;
+      --card-light: #ffffff;
+      --card-dark: #1e293b;
+      --text-light: #1e293b;
+      --text-dark: #f1f5f9;
+      --text-muted-light: #64748b;
+      --text-muted-dark: #94a3b8;
+      --border-light: #e2e8f0;
+      --border-dark: #334155;
+      
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--bg-light) 0%, #e2e8f0 100%);
+      color: var(--text-light);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    [data-theme="dark"] body {
+      background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
+      color: var(--text-dark);
+    }
+
+    /* 導覽列樣式 */
+    .navbar {
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-light);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    [data-theme="dark"] .navbar {
+      background: rgba(30, 41, 59, 0.95) !important;
+      border-bottom-color: var(--border-dark);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      position: relative;
+      padding: 0.75rem 1rem !important;
+      border-radius: 0.5rem;
+      margin: 0 0.25rem;
+    }
+
+    .nav-link:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary-color) !important;
+    }
+
+    .nav-link.active {
+      background: var(--primary-color);
+      color: white !important;
+    }
+
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 2px;
+      background: var(--primary-color);
+      border-radius: 1px;
+    }
+
+    /* 主題切換按鈕 */
+    .theme-toggle {
+      position: fixed;
+      top: 6rem;
+      right: 2rem;
+      z-index: 999;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--card-light);
+      border: 2px solid var(--border-light);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: var(--shadow-xl);
+    }
+
+    [data-theme="dark"] .theme-toggle {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    /* 主要容器 */
+    .main-container {
+      padding: 3rem 0;
+      min-height: calc(100vh - 200px);
+    }
+
+    /* 頁面標題 */
+    .page-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .page-title {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted-light);
+      font-weight: 400;
+    }
+
+    [data-theme="dark"] .page-subtitle {
+      color: var(--text-muted-dark);
+    }
+    /* 修正暗色模式導覽列文字顏色 */
+    [data-theme="dark"] .navbar {
+      background: rgba(30, 41, 59, 0.95) !important;
+      border-bottom-color: var(--border-dark);
+    }
+
+    [data-theme="dark"] .nav-link {
+      color: var(--text-dark) !important;
+    }
+
+    [data-theme="dark"] .nav-link:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary-color) !important;
+    }
+
+    [data-theme="dark"] .nav-link.active {
+      background: var(--primary-color);
+      color: white !important;
+    }
+
+    /* 歷史記錄卡片 */
+    .history-card {
+      background: var(--card-light);
+      border-radius: 1.5rem;
+      padding: 0;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+      margin-bottom: 2rem;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .history-card.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .history-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    [data-theme="dark"] .history-card {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    .history-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 1.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .history-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .history-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .history-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.75rem;
+      position: relative;
+      z-index: 1;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .meta-badge {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 0.4rem 0.8rem;
+      border-radius: 1.5rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .history-body {
+      padding: 2rem;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .info-item {
+      background: rgba(99, 102, 241, 0.05);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      border-left: 4px solid var(--primary-color);
+    }
+
+    [data-theme="dark"] .info-item {
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .info-value {
+      color: var(--text-light);
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    [data-theme="dark"] .info-value {
+      color: var(--text-dark);
+    }
+
+    .code-block {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid var(--border-light);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      position: relative;
+    }
+
+    [data-theme="dark"] .code-block {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      border-color: var(--border-dark);
+      color: #e2e8f0;
+    }
+
+    .code-block::before {
+      content: attr(data-lang);
+      position: absolute;
+      top: 0.75rem;
+      right: 1rem;
+      background: var(--primary-color);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .status-success {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15));
+      color: var(--success-color);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-error {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+      color: var(--danger-color);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .progress-bar-container {
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 1rem;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .progress-bar {
+      background: linear-gradient(135deg, var(--success-color), var(--secondary-color));
+      height: 0.5rem;
+      border-radius: 0.5rem;
+      transition: width 1s ease-out;
+    }
+
+    .progress-text {
+      text-align: center;
+      margin-top: 0.5rem;
+      font-weight: 600;
+      color: var(--text-muted-light);
+      font-size: 0.9rem;
+    }
+
+    [data-theme="dark"] .progress-text {
+      color: var(--text-muted-dark);
+    }
+
+    /* 載入狀態 */
+    .loading-container {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(99, 102, 241, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: var(--text-muted-light);
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    [data-theme="dark"] .loading-text {
+      color: var(--text-muted-dark);
+    }
+
+    /* 空狀態 */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: var(--card-light);
+      border-radius: 1.5rem;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow);
+    }
+
+    [data-theme="dark"] .empty-state {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      color: var(--text-muted-light);
+      margin-bottom: 1rem;
+    }
+
+    [data-theme="dark"] .empty-icon {
+      color: var(--text-muted-dark);
+    }
+
+    .empty-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+
+    [data-theme="dark"] .empty-title {
+      color: var(--text-dark);
+    }
+
+    .empty-subtitle {
+      color: var(--text-muted-light);
+      font-size: 1rem;
+    }
+
+    [data-theme="dark"] .empty-subtitle {
+      color: var(--text-muted-dark);
+    }
+
+    /* 錯誤狀態 */
+    .error-message {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--danger-color);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      text-align: center;
+      margin: 2rem 0;
+      font-weight: 500;
+    }
+
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      .theme-toggle {
+        top: 5rem;
+        right: 1rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+      }
+
+      .history-body {
+        padding: 1.5rem;
+      }
+
+      .history-header {
+        padding: 1.25rem 1.5rem;
+      }
+
+      .history-title {
+        font-size: 1.25rem;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .history-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+    }
+
+    /* 動畫效果 */
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 主題切換按鈕 -->
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="切換主題">
+    <i class="fas fa-moon" id="theme-icon"></i>
+  </button>
+
+  <!-- 導覽列 -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-graduation-cap me-2"></i>學生系統
+      </a>
+      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="fas fa-code me-1"></i>程式碼繳交
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="homework.html">
+              <i class="fas fa-tasks me-1"></i>觀看題目
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="student_history.html">
+              <i class="fas fa-history me-1"></i>繳交紀錄
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/static/progress.html">
+              <i class="fas fa-chart-line me-1"></i>學習進度
+            </a>
+          </li>
+        </ul>
+        
+        <a href="homepage.html" class="btn btn-outline-danger">
+          <i class="fas fa-sign-out-alt me-1"></i>登出
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主要內容 -->
+  <div class="container main-container">
+    <!-- 頁面標題 -->
+    <div class="page-header fade-in">
+      <h1 class="page-title">繳交紀錄</h1>
+      <p class="page-subtitle">查看您的程式碼提交歷史與評分結果</p>
+    </div>
+
+    <!-- 歷史記錄容器 -->
+    <div id="historyContainer">
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">載入中...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // 主題切換功能
+    function toggleTheme() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      const currentTheme = html.getAttribute('data-theme');
+      
+      if (currentTheme === 'dark') {
+        html.setAttribute('data-theme', 'light');
+        themeIcon.className = 'fas fa-moon';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        themeIcon.className = 'fas fa-sun';
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+
+    // 載入保存的主題
+    function loadTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      
+      html.setAttribute('data-theme', savedTheme);
+      themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // 格式化日期
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      // 減掉 8 小時（毫秒）
+      date.setHours(date.getHours() + 8);
+      return date.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    }
+
+
+    // 計算通過率
+    function calculatePassRate(detailedResult) {
+      // 允許 detailedResult 是字串（歷史舊資料），嘗試 JSON.parse
+      if (typeof detailedResult === "string") {
+        try {
+          detailedResult = JSON.parse(detailedResult);
+        } catch (e) {
+          console.warn("detailedResult JSON.parse 失敗：", detailedResult, e);
+          return { passed: 0, total: 0, percent: 0 };
+        }
+      }
+
+      if (!Array.isArray(detailedResult)) {
+        console.warn("detailedResult 不是陣列：", detailedResult);
+        return { passed: 0, total: 0, percent: 0 };
+      }
+
+      const passed = detailedResult.filter(r => r.correct === true || r.correct === "true").length;
+      const total = detailedResult.length;
+      const percent = total > 0 ? Number(((passed / total) * 100).toFixed(1)) : 0;
+      return { passed, total, percent };
+    }
+
+
+    // 載入歷史記錄
+    async function loadHistory() {
+      const container = document.getElementById('historyContainer');
+
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/student_history`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state fade-in">
+              <div class="empty-icon">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <div class="empty-title">尚無繳交紀錄</div>
+              <div class="empty-subtitle">開始練習程式設計題目吧！</div>
+            </div>
+          `;
+          return;
+        }
+
+        // 按時間排序（最新的在前）
+        data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        let html = '';
+        data.forEach((record, i) => {
+          const passRate = calculatePassRate(record.detailed_results);
+          const isAllCorrect = record.overall_correct;
+          console.log(`第 ${i + 1} 筆紀錄的測資結果：`, record.detailed_results);
+          console.log(`計算結果：`, calculatePassRate(record.detailed_results));
+
+          html += `
+            <div class="history-card" style="animation-delay: ${i * 0.1}s">
+              <div class="history-header">
+                <div class="history-title">
+                  <i class="fas fa-code me-2"></i>
+                  ${record.problem_title || '無標題'}
+                </div>
+                <div class="history-meta">
+                  <div class="meta-badge">
+                    <i class="fas fa-clock"></i>
+                    ${formatDate(record.created_at)}
+                  </div>
+                  <div class="meta-badge">
+                    <i class="fas fa-hashtag"></i>
+                    第 ${i + 1} 次提交
+                  </div>
+                </div>
+              </div>
+              
+              <div class="history-body">
+                <div class="info-grid">
+                  <div class="info-item">
+                    <div class="info-label">
+                      <i class="fas fa-robot"></i>
+                      AI 評分
+                    </div>
+                    <div class="info-value">${record.ai_score || '未評分'}</div>
+                  </div>
+                  
+                  <div class="info-item">
+                    <div class="info-label">
+                      <i class="fas fa-check-circle"></i>
+                      測資結果
+                    </div>
+                    <div class="info-value">
+                      <span class="status-badge ${isAllCorrect ? 'status-success' : 'status-error'}">
+                        <i class="fas ${isAllCorrect ? 'fa-check' : 'fa-times'}"></i>
+                        ${isAllCorrect ? '全部通過' : '部分錯誤'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="info-item" style="grid-column: 1 / -1;">
+                    <div class="info-label">
+                      <i class="fas fa-chart-pie"></i>
+                      測資通過率
+                    </div>
+                    <div class="info-value">
+                      ${passRate.passed}/${passRate.total} (${passRate.percent}%)
+                      <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${passRate.percent}%"></div>
+                      </div>
+                      <div class="progress-text">${passRate.percent}% 通過</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="info-item">
+                  <div class="info-label">
+                    <i class="fas fa-comment-dots"></i>
+                    AI 回饋
+                  </div>
+                  <div class="code-block" data-lang="feedback">${record.ai_feedback || '無回饋'}</div>
+                </div>
+                
+                <div class="info-item" style="margin-top: 1.5rem;">
+                  <div class="info-label">
+                    <i class="fas fa-code"></i>
+                    提交程式碼
+                  </div>
+                  <div class="code-block" data-lang="code">${record.code || '無程式碼'}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+
+        // 添加顯示動畫
+        setTimeout(() => {
+          const cards = document.querySelectorAll('.history-card');
+          cards.forEach((card, index) => {
+            setTimeout(() => {
+              card.classList.add('show');
+            }, index * 100);
+          });
+        }, 100);
+
+      } catch (err) {
+        console.error('載入歷史記錄失敗:', err);
+        container.innerHTML = `
+          <div class="error-message fade-in">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            載入失敗，請檢查網路連線並重新整理頁面。
+          </div>
+        `;
+      }
+    }
+
+    // 頁面載入完成時執行
+    document.addEventListener('DOMContentLoaded', function() {
+      loadTheme();
+      loadHistory();
+    });
+  </script>
+</body>
+</html>

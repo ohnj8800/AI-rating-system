@@ -1,0 +1,48 @@
+import sys
+import math
+
+# 逐行讀取直到遇 "0 0"
+for line in sys.stdin:
+    line = line.strip()
+    if not line:
+        continue
+    parts = line.split()
+    if len(parts) < 2:
+        continue
+    try:
+        a = int(parts[0])
+        b = int(parts[1])
+    except:
+        continue
+    # 停止條件
+    if a == 0 and b == 0:
+        break
+    # 保證 a <= b；若輸入不保證，可 swap：
+    if a > b:
+        a, b = b, a
+    # 計算區間 [a, b] 內的平方數個數：
+    # 最小的平方根 k 使 k^2 >= a: k = ceil(sqrt(a))
+    # 最大的平方根 m 使 m^2 <= b: m = floor(sqrt(b))
+    # 使用 math.isqrt:
+    # floor_sqrt_b = math.isqrt(b)
+    # ceil_sqrt_a: 若 math.isqrt(a)**2 == a -> math.isqrt(a), 否則 math.isqrt(a)+1
+    fa = math.isqrt(a)
+    if fa * fa < a:
+        fa += 1
+    fb = math.isqrt(b)
+    cnt = fb - fa + 1
+    if cnt < 0:
+        cnt = 0
+    print(cnt)
+
+```
+- Diff output
+Wrong answer on line 1 of output (corresponding to line 1 in answer file)
+User EOF while judge had more output
+(Next judge token: 2)
+- Program error output
+Traceback (most recent call last):
+  File "PA.py", line 29, in <module>
+    fa = math.isqrt(a)
+AttributeError: module 'math' has no attribute 'isqrt'
+```

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        input {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin: 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>登入</h2>
+        <form id="login-form">
+            <input type="text" name="username" placeholder="使用者名稱" required>
+            <input type="password" name="password" placeholder="密碼" required>
+            <button type="submit">登入</button>
+            <div class="error" id="login-error"></div>
+        </form>
+    </div>
+
+    <script>
+        const backendURL = "http://192.168.0.89:8000";
+
+        document.getElementById("login-form").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const form = new FormData(this);
+
+            const res = await fetch(`${backendURL}/login`, {
+                method: "POST",
+                body: form
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                localStorage.setItem("token", data.access_token);
+
+                if (data.identity === 0) {
+                    window.location.href = "/static/teacher_upload.html"; // 老師頁面
+                } else {
+                    window.location.href = "/static/index.html"; // 學生頁面
+                }
+            } else {
+                document.getElementById("login-error").innerText = data.detail || "登入失敗";
+            }
+        });
+    </script>
+</body>
+</html>

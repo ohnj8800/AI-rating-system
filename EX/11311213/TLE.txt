@@ -1,0 +1,28 @@
+def square_num(n,m):
+    result=0
+    for i in range(n,m+1):
+        if i**0.5%1==0:
+            result+=1
+    return result
+while True:
+    n,m=map(int,input().split())
+    if n==m==0:
+        break
+    if n>m:
+        print(square_num(m,n))
+    else:
+        print(square_num(n,m))
+
+# Diff output
+# There was no diff output.
+
+# Program error output
+# There was no stderr output.
+
+# Judging system output (info/debug/errors)
+# Timelimit exceeded.
+# runtime: 1.330s cpu, 1.350s wall
+# memory used: 26902528 bytes
+# ********** runguard stderr follows **********
+# /opt/domjudge/judgehost/bin/runguard: warning: timelimit exceeded (soft wall time)
+# /opt/domjudge/judgehost/bin/runguard: warning: timelimit exceeded (soft cpu time)

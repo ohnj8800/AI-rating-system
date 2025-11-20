@@ -1,0 +1,66 @@
+import sys
+import math
+
+def int_sqrt_floor(x):
+    """
+    返回 floor(sqrt(x))，即不大於 sqrt(x) 的最大整數。
+    盡量使用 math.isqrt，如果不可用則退回到浮點估計加修正。
+    """
+    # 嘗試使用 math.isqrt（Python 3.8+）
+    try:
+        return math.isqrt(x)
+    except AttributeError:
+        # Python 版本不支援 isqrt，使用浮點估計再修正
+        if x < 0:
+            raise ValueError("Negative argument for sqrt")
+        # 可能 x 很大，但在本題 b ≤ 100000，所以安全使用浮點
+        r = int(math.sqrt(x))
+        # 修正 r 使其為 floor(sqrt(x))
+        # 可能因浮點誤差，r^2 可能大於 x，或 (r+1)^2 ≤ x
+        # 做少量調整
+        while (r+1) * (r+1) <= x:
+            r += 1
+        while r * r > x:
+            r -= 1
+        return r
+
+# 主程式：逐行讀取 a, b，計算平方數個數
+for line in sys.stdin:
+    line = line.strip()
+    if not line:
+        continue
+    parts = line.split()
+    if len(parts) < 2:
+        continue
+    # 解析 a, b
+    try:
+        a = int(parts[0])
+        b = int(parts[1])
+    except:
+        # 解析失敗則跳過此行
+        continue
+    # 終止條件
+    if a == 0 and b == 0:
+        break
+    # 確保 a <= b
+    if a > b:
+        a, b = b, a
+    # a, b 皆非負，可處理
+    # 計算最小 k 使 k^2 >= a: ceil_sqrt_a
+    # floor_sqrt_b = floor(sqrt(b))
+    # ceil_sqrt_a: k0 = floor(sqrt(a)); if k0*k0 < a: k0+=1
+    try:
+        fa0 = int_sqrt_floor(a)
+        if fa0 * fa0 < a:
+            fa = fa0 + 1
+        else:
+            fa = fa0
+        fb = int_sqrt_floor(b)
+    except Exception:
+        # 若計算中發生意外（理論上不會），視為無平方數
+        print(0)
+        continue
+    cnt = fb - fa + 1
+    if cnt < 0:
+        cnt = 0
+    print(cnt)

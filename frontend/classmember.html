@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>課程成員管理 - 教師系統</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #06b6d4;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-dark: #0f172a;
+            --card-light: #ffffff;
+            --card-dark: #1e293b;
+            --text-light: #1e293b;
+            --text-dark: #f1f5f9;
+            --text-muted-light: #64748b;
+            --text-muted-dark: #94a3b8;
+            --border-light: #e2e8f0;
+            --border-dark: #334155;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-light) 0%, #e2e8f0 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
+            color: var(--text-dark);
+        }
+
+        .navbar {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: var(--shadow);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        [data-theme="dark"] .navbar {
+            background: rgba(30,41,59,0.95);
+            border-bottom-color: var(--border-dark);
+        }
+
+        .navbar .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+
+        [data-theme="dark"] .navbar .logo {
+            background: linear-gradient(135deg, #a5b4fc, #67e8f9);
+        }
+
+        .navbar .nav-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-left: 20px;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background 0.2s, color 0.2s;
+            position: relative;
+        }
+
+        .navbar .nav-links a.active, .navbar .nav-links a:hover {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        [data-theme="dark"] .navbar .nav-links a {
+            color: #a5b4fc;
+        }
+        [data-theme="dark"] .navbar .nav-links a.active, [data-theme="dark"] .navbar .nav-links a:hover {
+            background: #a5b4fc;
+            color: #1e293b;
+        }
+
+        .main-container {
+            padding: 3rem 0;
+            min-height: calc(100vh - 200px);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: none;
+            color: #3797ec;
+            letter-spacing: 1px;
+            display: inline-block;
+            border-radius: 1rem;
+            padding: 1rem 2rem;
+        }
+
+        [data-theme="dark"] .page-title {
+            background: none;
+            color: #3797ec;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        }
+
+        .card {
+            background: var(--card-light);
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            padding: 2.5rem 2rem;
+        }
+
+        [data-theme="dark"] .card {
+            background: var(--card-dark);
+            border-color: var(--border-dark);
+        }
+
+        .table-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            margin-bottom: 20px;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .search-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0;
+            width: 100%;
+        }
+
+        .action-buttons-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .add-member,
+        .batch-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0;
+        }
+
+        .add-member button,
+        .batch-actions button {
+            border: none;
+            padding: 0.75rem 1.25rem;
+            font-size: 1rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 0;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .search-filter input[type="text"],
+        .search-filter select,
+        .search-filter button {
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            border: 2px solid var(--border-light);
+            font-size: 1rem;
+            font-weight: 500;
+            background: var(--card-light);
+            color: var(--text-light);
+            box-shadow: var(--shadow);
+        }
+
+        .search-filter input[type="text"]:focus,
+        .search-filter select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        [data-theme="dark"] .search-filter input[type="text"],
+        [data-theme="dark"] .search-filter select {
+            background: var(--card-dark);
+            border-color: var(--border-dark);
+            color: var(--text-dark);
+        }
+
+        .search-filter button {
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .search-filter button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .add-member button.add {
+            background: var(--success-color);
+        }
+        .add-member button.add:hover {
+            background: #059669;
+            transform: translateY(-2px) scale(1.05);
+        }
+        .batch-actions button.import,
+        .batch-actions button.export {
+            background: var(--secondary-color);
+        }
+        .batch-actions button.import:hover,
+        .batch-actions button.export:hover {
+            background: #0891b2;
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .data-table th, .data-table td {
+            border-bottom: 1px solid var(--border-light);
+            padding: 1.25rem 1rem;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        [data-theme="dark"] .data-table th, [data-theme="dark"] .data-table td {
+            border-color: var(--border-dark);
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1));
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1rem;
+            position: relative;
+        }
+        [data-theme="dark"] .data-table th {
+            background: var(--card-dark);
+            color: var(--text-muted-dark);
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        [data-theme="dark"] .data-table tr:nth-child(even) {
+            background: #273549;
+        }
+
+        .data-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        [data-theme="dark"] .data-table tr:hover {
+            background: #334155;
+        }
+
+        .data-table .action-buttons button,
+        .data-table button.edit,
+        .data-table button.delete {
+            border: none;
+            padding: 0.5rem 1.25rem;
+            font-size: 1rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: var(--shadow);
+        }
+
+        .data-table button.edit {
+            background: var(--secondary-color);
+            color: #fff;
+        }
+        .data-table button.edit:hover {
+            background: #0891b2;
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .data-table button.delete {
+            background: var(--danger-color);
+            color: #fff;
+        }
+        .data-table button.delete:hover {
+            background: #c82333;
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: var(--card-light);
+            margin: 10% auto;
+            padding: 25px;
+            border: 1px solid var(--border-light);
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            position: relative;
+        }
+        [data-theme="dark"] .modal-content {
+            background: var(--card-dark);
+            border-color: var(--border-dark);
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        /* 表單樣式 */
+        .form-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .save-button {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .save-button:hover {
+            background-color: #218838;
+        }
+        .cancel-button {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .cancel-button:hover {
+            background-color: #c82333;
+        }
+
+        /* 動畫效果 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo"><i class="fas fa-graduation-cap me-2"></i>教師系統</div>
+        <div class="nav-links">
+            <a href="classmember.html" id="nav-classmember" class="active">課程成員管理</a>
+            <a href="teacher_upload.html#history" id="nav-history">歷史作業紀錄</a>
+            <a href="teacher_upload.html#upload" id="nav-upload">作業發布</a>
+            <a href="#" id="logout">登出</a>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="page-header fade-in">
+            <h1 class="page-title">課程成員管理</h1>
+        </div>
+        <div class="card slide-up">
+            <div class="table-actions">
+                <div class="search-filter">
+                    <input type="text" id="member-search-query" placeholder="依姓名或帳號/學號搜尋...">
+                    <select id="member-filter-class">
+                        <option value="">所有課程</option>
+                    </select>
+                    <button onclick="fetchMembers()"><i class="fas fa-search"></i> 搜尋/篩選</button>
+                </div>
+                <div class="action-buttons-row">
+                    <div class="add-member">
+                        <button class="add" onclick="openAddMemberModal()"><i class="fas fa-user-plus"></i> 新增成員</button>
+                    </div>
+                    <div class="batch-actions">
+                        <input type="file" id="member-import-file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display: none;">
+                        <button class="import" onclick="document.getElementById('member-import-file').click();"><i class="fas fa-file-import"></i> 匯入成員名單</button>
+                        <button class="export" onclick="exportMembers()"><i class="fas fa-file-export"></i> 匯出成員清單</button>
+                    </div>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>序號</th>
+                        <th>姓名</th>
+                        <th>學號</th>
+                        <th>年級</th>
+                        <th>課程</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="members-list">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="memberModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeMemberModal()">&times;</span>
+            <h3 id="memberModalTitle">編輯成員</h3>
+            <form id="memberForm" class="form-layout">
+                <input type="hidden" id="member-edit-id" name="id">
+                <div class="form-group">
+                    <label for="member-name">姓名：</label>
+                    <input type="text" id="member-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="member-student-id">學號：</label>
+                    <input type="text" id="member-student-id" name="student_id" required>
+                </div>
+                <div class="form-group">
+                    <label for="member-student-grade">年級：</label>
+                    <input type="text" id="member-student-grade" name="student_grade">
+                </div>
+                <div class="form-group">
+                    <label for="member-class">課程：</label>
+                    <input type="text" id="member-class" name="className">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="save-button" onclick="saveMember()">儲存</button>
+                    <button type="button" class="cancel-button" onclick="closeMemberModal()">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const backendURL = "http://192.168.0.89:8000";
+        const token = localStorage.getItem("token");
+
+        // --- Course Member Management Specific JS ---
+        const memberModal = document.getElementById('memberModal');
+        const memberForm = document.getElementById('memberForm');
+        const memberModalTitle = document.getElementById('memberModalTitle');
+        const memberEditId = document.getElementById('member-edit-id');
+
+        // Logout (if token is not present, redirect to login)
+        document.getElementById('logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            alert('您已成功登出！');
+            window.location.href = 'login.html';
+        });
+
+        // *** DOMContentLoaded 事件監聽器：同時載入課程列表和成員列表 ***
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!token) {
+                alert("請先登入！");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            fetchClassNames();
+            fetchMembers();
+        });
+
+        async function fetchMembers() {
+            try {
+                const query = document.getElementById('member-search-query').value.trim();
+                const className = document.getElementById('member-filter-class').value;
+
+                const params = new URLSearchParams();
+                if (query) params.append('query', query);
+                if (className) params.append('className', className);
+
+                //console.log("搜尋參數：", params.toString()); // 調試輸出
+
+                const res = await fetch(`${backendURL}/api/course_members?${params.toString()}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!res.ok) {
+                    console.log("伺服器回應：", res); // 調試輸出
+                    throw new Error('無法載入成員資料');
+                }
+
+                const members = await res.json();
+                //console.log("成員資料：", members); // 調試輸出
+                
+                const membersList = document.getElementById('members-list');
+                membersList.innerHTML = members.map((member, index) => `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${member.name || 'N/A'}</td>
+                        <td>${member.student_id || 'N/A'}</td>
+                        <td>${member.student_grade || 'N/A'}</td>
+                        <td>${member.className || 'N/A'}</td>
+                        <td>
+                            <button class="edit" onclick="editMember(${member.id})">編輯</button>
+                            <button class="delete" onclick="deleteMember(${member.id})">刪除</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error(error);
+                alert('載入成員失敗，請稍後再試');
+            }
+        }
+
+        async function fetchClassNames() {
+            try {
+                const res = await fetch(`${backendURL}/api/class_names`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!res.ok) {
+                    
+                    throw new Error('無法載入課程資料');
+                }
+
+                const classNames = await res.json();
+                const classSelect = document.getElementById('member-filter-class');
+
+                // 清空選單並新增預設選項
+                classSelect.innerHTML = `<option value="">所有課程</option>`;
+
+                // 將課程名稱填充到選單中
+                classNames.forEach(className => {
+                    const option = document.createElement('option');
+                    option.value = className; // 使用課程名稱作為值
+                    option.textContent = className; // 顯示課程名稱
+                    classSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error(error);
+                alert('載入課程失敗，請稍後再試');
+            }
+        }
+
+        // 編輯成員
+        async function editMember(memberId) {
+            if (!memberId) {
+                alert('無效的成員 ID');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${backendURL}/api/course_members/${memberId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!res.ok) {
+                    throw new Error('無法載入成員資料');
+                }
+
+                const member = await res.json();
+
+                // 填充表單資料
+                memberEditId.value = member.id;
+                document.getElementById('member-name').value = member.name || '';
+                document.getElementById('member-student-id').value = member.student_id || '';
+                document.getElementById('member-student-grade').value = member.student_grade || '';
+                document.getElementById('member-class').value = member.className || '';
+
+                // 更新彈跳視窗標題
+                memberModalTitle.textContent = '編輯成員';
+
+                // 顯示彈跳視窗
+                memberModal.style.display = 'block';
+            } catch (error) {
+                console.error(error);
+                alert('載入成員資料失敗，請稍後再試');
+            }
+        }
+
+        // 儲存成員（新增或更新）
+        async function saveMember() {
+            try {
+                const memberId = memberEditId.value;
+                const url = memberId
+                    ? `${backendURL}/api/course_members/${memberId}`
+                    : `${backendURL}/api/course_members`;
+                const method = memberId ? 'PUT' : 'POST';
+
+                // 組成 JSON 物件
+                const data = {
+                    name: document.getElementById('member-name').value,
+                    student_id: document.getElementById('member-student-id').value,
+                    student_grade: document.getElementById('member-student-grade').value,
+                    className: document.getElementById('member-class').value
+                };
+
+                const res = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!res.ok) {
+                    throw new Error(memberId ? '更新成員失敗' : '新增成員失敗');
+                }
+
+                alert(memberId ? '成員更新成功！' : '成員新增成功！');
+                closeMemberModal();
+                fetchMembers();
+            } catch (error) {
+                console.error(error);
+                alert(error.message);
+            }
+        }
+
+        // 刪除成員
+        async function deleteMember(memberId) {
+            if (!confirm('確定要刪除此成員嗎？')) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${backendURL}/api/course_members/${memberId}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!res.ok) {
+                    throw new Error('刪除成員失敗');
+                }
+
+                alert('成員已成功刪除！');
+
+                // 重新載入成員列表
+                fetchMembers();
+            } catch (error) {
+                console.error(error);
+                alert('刪除成員失敗，請稍後再試');
+            }
+        }
+
+        function closeMemberModal() {
+            memberModal.style.display = 'none';
+            memberForm.reset(); // 重置表單內容
+        }
+
+        function openAddMemberModal() {
+            // 清空表單欄位
+            memberEditId.value = '';
+            document.getElementById('member-name').value = '';
+            document.getElementById('member-student-id').value = '';
+            document.getElementById('member-student-grade').value = '';
+            document.getElementById('member-class').value = '';
+
+
+            // 更新彈跳視窗標題
+            memberModalTitle.textContent = '新增成員';
+
+            // 顯示彈跳視窗
+            memberModal.style.display = 'block';
+        }
+
+        async function exportMembers() {
+            try {
+                const query = document.getElementById('member-search-query').value.trim();
+                const className = document.getElementById('member-filter-class').value;
+
+                const params = new URLSearchParams();
+                if (query) params.append('query', query);
+                if (className) params.append('className', className);
+
+                // 呼叫後端匯出 API，取得 CSV blob
+                const res = await fetch(`${backendURL}/api/course_members/export?${params.toString()}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error('無法取得成員資料');
+
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '課程成員清單.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error(error);
+                alert('匯出失敗，請稍後再試');
+            }
+        }
+
+        // 響應式互動效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 卡片進場動畫已加 .slide-up
+            // 按鈕 hover 已有 scale
+            // 表格 row hover 已有
+        });
+    </script>
+</body>
+</html>

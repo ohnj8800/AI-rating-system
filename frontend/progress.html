@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>學習進度 - 學生系統</title>
+
+  <!-- 核心資源 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary-color: #06b6d4;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      
+      --bg-light: #f8fafc;
+      --bg-dark: #0f172a;
+      --card-light: #ffffff;
+      --card-dark: #1e293b;
+      --text-light: #1e293b;
+      --text-dark: #f1f5f9;
+      --text-muted-light: #64748b;
+      --text-muted-dark: #94a3b8;
+      --border-light: #e2e8f0;
+      --border-dark: #334155;
+      
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--bg-light) 0%, #e2e8f0 100%);
+      color: var(--text-light);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    [data-theme="dark"] body {
+      background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
+      color: var(--text-dark);
+    }
+
+    /* 導覽列樣式 */
+    .navbar {
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-light);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    [data-theme="dark"] .navbar {
+      background: rgba(30, 41, 59, 0.95) !important;
+      border-bottom-color: var(--border-dark);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      position: relative;
+      padding: 0.75rem 1rem !important;
+      border-radius: 0.5rem;
+      margin: 0 0.25rem;
+    }
+
+    .nav-link:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary-color) !important;
+    }
+
+    .nav-link.active {
+      background: var(--primary-color);
+      color: white !important;
+    }
+
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 2px;
+      background: var(--primary-color);
+      border-radius: 1px;
+    }
+
+    /* 主題切換按鈕 */
+    .theme-toggle {
+      position: fixed;
+      top: 6rem;
+      right: 2rem;
+      z-index: 999;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--card-light);
+      border: 2px solid var(--border-light);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: var(--shadow-xl);
+    }
+
+    [data-theme="dark"] .theme-toggle {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    /* 主要容器 */
+    .main-container {
+      padding: 3rem 0;
+      min-height: calc(100vh - 200px);
+    }
+
+    /* 頁面標題 */
+    .page-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .page-title {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted-light);
+      font-weight: 400;
+    }
+
+    [data-theme="dark"] .page-subtitle {
+      color: var(--text-muted-dark);
+    }
+
+    /* 進度卡片樣式 */
+    .progress-card {
+      background: var(--card-light);
+      border-radius: 1.5rem;
+      padding: 0;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    [data-theme="dark"] .progress-card {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    .progress-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .progress-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .progress-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .title-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .back-button {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      font-weight: 500;
+      text-decoration: none;
+      position: relative;
+      z-index: 1;
+      transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* 表格樣式 */
+    .progress-table-container {
+      padding: 2rem;
+    }
+
+    .table {
+      margin: 0;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .table thead th {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1));
+      border: none;
+      font-weight: 600;
+      color: var(--primary-color);
+      padding: 1.5rem 1rem;
+      font-size: 1rem;
+      position: relative;
+    }
+
+    .table thead th::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    }
+
+    .table tbody td {
+      padding: 1.25rem 1rem;
+      border: none;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: middle;
+      color: var(--text-light);
+    }
+
+    [data-theme="dark"] .table tbody td {
+      border-bottom-color: var(--border-dark);
+      color: var(--text-dark);
+    }
+
+    .table tbody tr:hover {
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    [data-theme="dark"] .table tbody tr:hover {
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    /* 狀態徽章 */
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .status-completed {
+      background: linear-gradient(135deg, var(--success-color), #059669);
+      color: white;
+    }
+
+    .status-in-progress {
+      background: linear-gradient(135deg, var(--warning-color), #d97706);
+      color: white;
+    }
+
+    .status-not-started {
+      background: linear-gradient(135deg, var(--text-muted-light), #64748b);
+      color: white;
+    }
+
+    .status-failed {
+      background: linear-gradient(135deg, var(--danger-color), #dc2626);
+      color: white;
+    }
+    /* 修正暗色模式導覽列文字顏色 */
+    [data-theme="dark"] .navbar {
+      background: rgba(30, 41, 59, 0.95) !important;
+      border-bottom-color: var(--border-dark);
+    }
+
+    [data-theme="dark"] .nav-link {
+      color: var(--text-dark) !important;
+    }
+
+    [data-theme="dark"] .nav-link:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary-color) !important;
+    }
+
+    [data-theme="dark"] .nav-link.active {
+      background: var(--primary-color);
+      color: white !important;
+    }
+
+    /* 計數器樣式 */
+    .count-display {
+      background: rgba(99, 102, 241, 0.1);
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .count-success {
+      color: var(--success-color);
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .count-error {
+      color: var(--danger-color);
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    /* 載入狀態 */
+    .loading-row {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(99, 102, 241, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: var(--text-muted-light);
+      font-size: 1.1rem;
+    }
+
+    [data-theme="dark"] .loading-text {
+      color: var(--text-muted-dark);
+    }
+
+    /* 空狀態 */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted-light);
+    }
+
+    [data-theme="dark"] .empty-state {
+      color: var(--text-muted-dark);
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* 錯誤狀態 */
+    .error-state {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    .error-message {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--danger-color);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      font-size: 1.1rem;
+    }
+
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      .theme-toggle {
+        top: 5rem;
+        right: 1rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+      }
+
+      .progress-header {
+        padding: 1.5rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .progress-title {
+        font-size: 1.5rem;
+      }
+
+      .progress-table-container {
+        padding: 1rem;
+      }
+
+      .table thead th,
+      .table tbody td {
+        padding: 1rem 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .count-display {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+      }
+    }
+
+    /* 動畫效果 */
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .slide-up {
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 主題切換按鈕 -->
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="切換主題">
+    <i class="fas fa-moon" id="theme-icon"></i>
+  </button>
+
+  <!-- 導覽列 -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-graduation-cap me-2"></i>學生系統
+      </a>
+      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="fas fa-code me-1"></i>程式碼繳交
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/static/homework.html">
+              <i class="fas fa-tasks me-1"></i>觀看題目
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/static/student_history.html">
+              <i class="fas fa-history me-1"></i>繳交紀錄
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/static/progress.html">
+              <i class="fas fa-chart-line me-1"></i>學習進度
+            </a>
+          </li>
+        </ul>
+        
+        <a href="homepage.html" class="btn btn-outline-danger">
+          <i class="fas fa-sign-out-alt me-1"></i>登出
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主要內容 -->
+  <div class="container main-container">
+    <!-- 頁面標題 -->
+    <div class="page-header fade-in">
+      <h1 class="page-title">學習進度</h1>
+      <p class="page-subtitle">追蹤您的學習成果與各題目完成狀況</p>
+    </div>
+
+    <!-- 學習進度卡片 -->
+    <div class="progress-card slide-up">
+      <div class="progress-header">
+        <h2 class="progress-title">
+          <div class="title-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          進度總覽
+        </h2>
+        <a href="#" class="back-button" onclick="goBack()">
+          <i class="fas fa-arrow-left me-2"></i>返回
+        </a>
+      </div>
+      
+      <div class="progress-table-container">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>
+                  <i class="fas fa-book me-2"></i>題目名稱
+                </th>
+                <th>
+                  <i class="fas fa-flag me-2"></i>最新狀態
+                </th>
+                <th>
+                  <i class="fas fa-check-circle me-2"></i>通過次數
+                </th>
+                <th>
+                  <i class="fas fa-times-circle me-2"></i>失敗次數
+                </th>
+              </tr>
+            </thead>
+            <tbody id="progressBody">
+              <tr>
+                <td colspan="4" class="loading-row">
+                  <div class="loading-spinner"></div>
+                  <div class="loading-text">載入學習進度中...</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // 主題切換功能
+    function toggleTheme() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      const currentTheme = html.getAttribute('data-theme');
+      
+      if (currentTheme === 'dark') {
+        html.setAttribute('data-theme', 'light');
+        themeIcon.className = 'fas fa-moon';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        themeIcon.className = 'fas fa-sun';
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+
+    // 載入保存的主題
+    function loadTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      
+      html.setAttribute('data-theme', savedTheme);
+      themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // 取得狀態樣式類別
+    function getStatusClass(status) {
+      const statusLower = status.toLowerCase();
+      if (statusLower.includes('通過') || statusLower.includes('完成')) return 'status-completed';
+      if (statusLower.includes('進行') || statusLower.includes('部分')) return 'status-in-progress';
+      if (statusLower.includes('失敗') || statusLower.includes('錯誤')) return 'status-failed';
+      return 'status-not-started';
+    }
+
+    // 載入學習進度
+    async function loadProgress() {
+      const tbody = document.getElementById("progressBody");
+
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4" class="error-state">
+                <div class="error-message">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  未登入，請先登入系統
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        const res = await fetch("/progress", {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="4" class="error-state">
+                  <div class="error-message">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    未登入，請先登入系統
+                  </div>
+                </td>
+              </tr>
+            `;
+          } else {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="4" class="error-state">
+                  <div class="error-message">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    載入失敗，請檢查網路連線並重新整理頁面
+                  </div>
+                </td>
+              </tr>
+            `;
+          }
+          return;
+        }
+
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4" class="empty-state">
+                <div class="empty-icon">
+                  <i class="fas fa-chart-bar"></i>
+                </div>
+                <div>目前無任何題目紀錄</div>
+                <small>開始練習題目後，進度就會出現在這裡</small>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        let html = "";
+        data.forEach((item, index) => {
+          html += `
+            <tr style="animation-delay: ${index * 0.1}s" class="fade-in">
+              <td>
+                <strong>${item.title}</strong>
+              </td>
+              <td>
+                <span class="status-badge ${getStatusClass(item.status)}">
+                  ${item.status}
+                </span>
+              </td>
+              <td>
+                <span class="count-display count-success">
+                  <i class="fas fa-check"></i>
+                  ${item.passed_count}
+                </span>
+              </td>
+              <td>
+                <span class="count-display count-error">
+                  <i class="fas fa-times"></i>
+                  ${item.failed_count}
+                </span>
+              </td>
+            </tr>
+          `;
+        });
+
+        tbody.innerHTML = html;
+
+      } catch (error) {
+        console.error("載入學習進度失敗：", error);
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="error-state">
+              <div class="error-message">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                載入失敗，請檢查網路連線並重新整理頁面
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // 返回上一頁
+    function goBack() {
+      window.history.back();
+    }
+
+    // 頁面載入完成時執行
+    document.addEventListener('DOMContentLoaded', function() {
+      loadTheme();
+      loadProgress();
+      
+      // 添加一些互動效果
+      const card = document.querySelector('.progress-card');
+      card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px)';
+      });
+      
+      card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+      });
+    });
+  </script>
+</body>
+</html>

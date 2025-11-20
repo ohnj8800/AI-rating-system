@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8" />
+    <title>作業詳細內容</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        p {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .hint, .test-input, .answer-output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border: 1px solid #add8e6;
+            border-radius: 5px;
+        }
+
+        .sample-solution {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .button-container button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 id="title">載入中...</h2>
+        <p id="description"></p>
+        <div id="hint-container"></div>
+        <div id="test-input-container"></div>
+        <div id="answer-output-container"></div>
+        <div id="sample-solution-container"></div>
+        <div class="button-container">
+            <button onclick="goBack()">返回</button>
+            <button onclick="viewSubmissionRecords()">作業繳交紀錄</button>
+        </div>
+    </div>
+
+    <script>
+        const backendURL = "http://192.168.0.89:8000";
+        const token = localStorage.getItem("token");
+
+        const params = new URLSearchParams(window.location.search);
+        const problemId = params.get("problem_id");
+
+        async function loadDetail() {
+            const res = await fetch(`${backendURL}/assignment_detail/${problemId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                document.getElementById("title").textContent = data.title;
+                document.getElementById("description").textContent = data.description;
+
+                const hintContainer = document.getElementById("hint-container");
+                if (data.hint) {
+                    const hintDiv = document.createElement("div");
+                    hintDiv.className = "hint";
+                    hintDiv.textContent = "提示：" + data.hint;
+                    hintContainer.appendChild(hintDiv);
+                }
+
+                const testInputContainer = document.getElementById("test-input-container");
+                if (data.test_input) {
+                    const testInputDiv = document.createElement("div");
+                    testInputDiv.className = "test-input";
+                    testInputDiv.textContent = "測資輸入：" + data.test_input;
+                    testInputContainer.appendChild(testInputDiv);
+                }
+
+                const answerOutputContainer = document.getElementById("answer-output-container");
+                if (data.answer_output) {
+                    const answerOutputDiv = document.createElement("div");
+                    answerOutputDiv.className = "answer-output";
+                    answerOutputDiv.textContent = "答案輸出：" + data.answer_output;
+                    answerOutputContainer.appendChild(answerOutputDiv);
+                }
+
+                const sampleSolutionContainer = document.getElementById("sample-solution-container");
+                if (data.sample_solution) {
+                    const solutionDiv = document.createElement("div");
+                    solutionDiv.className = "sample-solution";
+                    solutionDiv.textContent = data.sample_solution;
+                    sampleSolutionContainer.appendChild(solutionDiv);
+                }
+            } else {
+                document.getElementById("title").textContent = "載入失敗";
+                document.getElementById("description").textContent = data.detail || "請稍後再試。";
+            }
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        function viewSubmissionRecords() {
+            window.location.href = `submission_overview.html?problem_id=${problemId}`;
+        }
+
+        loadDetail();
+    </script>
+</body>
+</html>

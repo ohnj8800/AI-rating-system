@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>題目列表 - 學生系統</title>
+
+  <!-- 核心資源 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary-color: #06b6d4;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      
+      --bg-light: #f8fafc;
+      --bg-dark: #0f172a;
+      --card-light: #ffffff;
+      --card-dark: #1e293b;
+      --text-light: #1e293b;
+      --text-dark: #f1f5f9;
+      --text-muted-light: #64748b;
+      --text-muted-dark: #94a3b8;
+      --border-light: #e2e8f0;
+      --border-dark: #334155;
+      
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--bg-light) 0%, #e2e8f0 100%);
+      color: var(--text-light);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    [data-theme="dark"] body {
+      background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
+      color: var(--text-dark);
+    }
+    /* 修正暗色模式導覽列文字顏色 */
+    [data-theme="dark"] .navbar {
+      background: rgba(30, 41, 59, 0.95) !important;
+      border-bottom-color: var(--border-dark);
+    }
+
+    [data-theme="dark"] .nav-link {
+      color: var(--text-dark) !important;
+    }
+
+    [data-theme="dark"] .nav-link:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary-color) !important;
+    }
+
+    [data-theme="dark"] .nav-link.active {
+      background: var(--primary-color);
+      color: white !important;
+    }
+
+    /* 導覽列樣式 */
+    .navbar {
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-light);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    [data-theme="dark"] .navbar {
+      background: rgba(30, 41, 59, 0.95) !important;
+      border-bottom-color: var(--border-dark);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      position: relative;
+      padding: 0.75rem 1rem !important;
+      border-radius: 0.5rem;
+      margin: 0 0.25rem;
+    }
+
+    .nav-link:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary-color) !important;
+    }
+
+    .nav-link.active {
+      background: var(--primary-color);
+      color: white !important;
+    }
+
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 2px;
+      background: var(--primary-color);
+      border-radius: 1px;
+    }
+
+    /* 主題切換按鈕 */
+    .theme-toggle {
+      position: fixed;
+      top: 6rem;
+      right: 2rem;
+      z-index: 999;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--card-light);
+      border: 2px solid var(--border-light);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: var(--shadow-xl);
+    }
+
+    [data-theme="dark"] .theme-toggle {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    /* 主要容器 */
+    .main-container {
+      padding: 3rem 0;
+      min-height: calc(100vh - 200px);
+    }
+
+    /* 頁面標題 */
+    .page-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .page-title {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted-light);
+      font-weight: 400;
+    }
+
+    [data-theme="dark"] .page-subtitle {
+      color: var(--text-muted-dark);
+    }
+
+    /* 選擇器樣式 */
+    .problem-selector-card {
+      background: var(--card-light);
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-light);
+      margin-bottom: 2rem;
+    }
+
+    [data-theme="dark"] .problem-selector-card {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    .selector-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .selector-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .form-select {
+      border-radius: 1rem;
+      border: 2px solid var(--border-light);
+      padding: 1rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      background: var(--card-light);
+      color: var(--text-light);
+      box-shadow: var(--shadow);
+    }
+
+    .form-select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+    }
+
+    [data-theme="dark"] .form-select {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+      color: var(--text-dark);
+    }
+
+    /* 題目詳情卡片 */
+    .problem-detail-card {
+      background: var(--card-light);
+      border-radius: 1.5rem;
+      padding: 0;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .problem-detail-card.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    [data-theme="dark"] .problem-detail-card {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    .problem-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .problem-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .problem-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .problem-meta {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .meta-badge {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .problem-body {
+      padding: 2rem;
+    }
+
+    .problem-description {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      color: var(--text-light);
+    }
+
+    [data-theme="dark"] .problem-description {
+      color: var(--text-dark);
+    }
+
+    .problem-hint {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
+      border-left: 4px solid var(--success-color);
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .hint-title {
+      font-weight: 600;
+      color: var(--success-color);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    /* 修正暗色模式導覽列文字顏色 */
+    [data-theme="dark"] .navbar {
+      background: rgba(30, 41, 59, 0.95) !important;
+      border-bottom-color: var(--border-dark);
+    }
+
+    [data-theme="dark"] .nav-link {
+      color: var(--text-dark) !important;
+    }
+
+    [data-theme="dark"] .nav-link:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary-color) !important;
+    }
+
+    [data-theme="dark"] .nav-link.active {
+      background: var(--primary-color);
+      color: white !important;
+    }
+
+    .hint-content {
+      color: var(--text-muted-light);
+      margin: 0;
+    }
+
+    [data-theme="dark"] .hint-content {
+      color: var(--text-muted-dark);
+    }
+
+    /* 載入動畫 */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(99, 102, 241, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      .theme-toggle {
+        top: 5rem;
+        right: 1rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+      }
+
+      .problem-selector-card,
+      .problem-body {
+        padding: 1.5rem;
+      }
+
+      .problem-header {
+        padding: 1.5rem;
+      }
+
+      .problem-title {
+        font-size: 1.5rem;
+      }
+
+      .problem-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+
+    /* 錯誤狀態 */
+    .error-message {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--danger-color);
+      padding: 1rem;
+      border-radius: 0.75rem;
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    /* 動畫效果 */
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 主題切換按鈕 -->
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="切換主題">
+    <i class="fas fa-moon" id="theme-icon"></i>
+  </button>
+
+  <!-- 導覽列 -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-graduation-cap me-2"></i>學生系統
+      </a>
+      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="fas fa-code me-1"></i>程式碼繳交
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/static/homework.html">
+              <i class="fas fa-tasks me-1"></i>觀看題目
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/static/student_history.html">
+              <i class="fas fa-history me-1"></i>繳交紀錄
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/static/progress.html">
+              <i class="fas fa-chart-line me-1"></i>學習進度
+            </a>
+          </li>
+
+        </ul>
+        
+        <a href="homepage.html" class="btn btn-outline-danger">
+          <i class="fas fa-sign-out-alt me-1"></i>登出
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主要內容 -->
+  <div class="container main-container">
+    <!-- 頁面標題 -->
+    <div class="page-header fade-in">
+      <h1 class="page-title">題目選單</h1>
+      <p class="page-subtitle">選擇您想要查看的程式設計題目</p>
+    </div>
+
+    <!-- 題目選擇器 -->
+    <div class="problem-selector-card fade-in">
+      <div class="selector-title">
+        <div class="selector-icon">
+          <i class="fas fa-list"></i>
+        </div>
+        選擇題目
+      </div>
+      
+      <select id="problem-select" class="form-select">
+        <option value="" selected disabled>請選擇題目</option>
+      </select>
+    </div>
+
+    <!-- 題目詳情 -->
+    <div id="problem-detail" class="problem-detail-card">
+      <div class="problem-header">
+        <h2 id="problem-title" class="problem-title"></h2>
+        <div class="problem-meta">
+          <span class="meta-badge">
+            <i class="fas fa-code me-1"></i>程式設計
+          </span>
+          <span class="meta-badge">
+            <i class="fas fa-clock me-1"></i>不限時間
+          </span>
+        </div>
+      </div>
+      
+      <div class="problem-body">
+        <div class="problem-description" id="problem-description"></div>
+        
+        <div id="problem-hint" class="problem-hint" style="display: none;">
+          <div class="hint-title">
+            <i class="fas fa-lightbulb"></i>
+            提示
+          </div>
+          <p class="hint-content" id="hint-content"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // 主題切換功能
+    function toggleTheme() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      const currentTheme = html.getAttribute('data-theme');
+      
+      if (currentTheme === 'dark') {
+        html.setAttribute('data-theme', 'light');
+        themeIcon.className = 'fas fa-moon';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        themeIcon.className = 'fas fa-sun';
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+
+    // 載入保存的主題
+    function loadTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      
+      html.setAttribute('data-theme', savedTheme);
+      themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // 載入題目列表 (保留原本的 API 串接邏輯)
+    async function loadProblems() {
+      const select = document.getElementById('problem-select');
+      
+      try {
+        // 使用原本的 API 端點
+        const res = await fetch("/api/problems/");
+        const problems = await res.json();
+
+        // 清空選擇器並添加選項
+        select.innerHTML = '<option value="" selected disabled>請選擇題目</option>';
+        
+        problems.forEach(problem => {
+          const option = document.createElement("option");
+          option.value = problem.id;
+          option.textContent = problem.title;
+          option.dataset.description = problem.description || "";
+          option.dataset.hint = problem.hint || "";
+          select.appendChild(option);
+        });
+
+        // 添加選擇事件監聽器
+        select.addEventListener("change", showProblemDetail);
+
+      } catch (error) {
+        console.error("載入題目失敗：", error);
+        select.innerHTML = '<option value="" disabled>載入題目失敗，請重新整理頁面</option>';
+        
+        // 顯示錯誤訊息
+        const container = document.querySelector('.container.main-container');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message fade-in';
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>載入題目失敗，請檢查網路連線並重新整理頁面。';
+        container.appendChild(errorDiv);
+      }
+    }
+
+    // 顯示題目詳情 (保留原本邏輯，加上動畫效果)
+    function showProblemDetail() {
+      const select = document.getElementById('problem-select');
+      const detailCard = document.getElementById('problem-detail');
+      const selected = select.options[select.selectedIndex];
+      
+      if (!selected || !selected.value) return;
+      
+      // 更新題目內容 (保留原本的邏輯)
+      document.getElementById('problem-title').textContent = selected.textContent;
+      document.getElementById('problem-description').textContent = selected.dataset.description;
+      
+      // 處理提示內容 (保留原本的邏輯)
+      const hint = selected.dataset.hint;
+      const hintElement = document.getElementById('problem-hint');
+      const hintContent = document.getElementById('hint-content');
+      
+      if (hint && hint.trim()) {
+        hintContent.textContent = hint;
+        hintElement.style.display = 'block';
+      } else {
+        hintElement.style.display = 'none';
+      }
+      
+      // 顯示詳情卡片並添加動畫
+      detailCard.style.display = 'block';
+      setTimeout(() => {
+        detailCard.classList.add('show');
+      }, 10);
+    }
+
+    // 頁面載入完成時執行
+    document.addEventListener('DOMContentLoaded', function() {
+      loadTheme();
+      loadProblems();
+      
+      // 添加一些互動效果
+      const cards = document.querySelectorAll('.problem-selector-card, .problem-detail-card');
+      cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0)';
+        });
+      });
+    });
+  </script>
+</body>
+</html>

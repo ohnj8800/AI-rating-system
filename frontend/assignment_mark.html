@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>作業批改</title>
+
+  <!-- 核心資源 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    /* 完整複製 index.html 的 CSS */
+    :root {
+      --primary-color: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary-color: #06b6d4;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --bg-light: #f8fafc;
+      --bg-dark: #0f172a;
+      --card-light: #ffffff;
+      --card-dark: #1e293b;
+      --text-light: #1e293b;
+      --text-dark: #f1f5f9;
+      --text-muted-light: #64748b;
+      --text-muted-dark: #94a3b8;
+      --border-light: #e2e8f0;
+      --border-dark: #334155;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    * { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, var(--bg-light) 0%, #e2e8f0 100%); color: var(--text-light); min-height: 100vh; line-height: 1.6; }
+    [data-theme="dark"] body { background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%); color: var(--text-dark); }
+    .navbar { background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-light); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
+    [data-theme="dark"] .navbar { background: rgba(30, 41, 59, 0.95) !important; border-bottom-color: var(--border-dark); }
+    .navbar-brand { font-weight: 700; font-size: 1.5rem; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-link { font-weight: 500; position: relative; padding: 0.75rem 1rem !important; border-radius: 0.5rem; margin: 0 0.25rem; }
+    .nav-link:hover { background: rgba(99, 102, 241, 0.1); color: var(--primary-color) !important; }
+    .nav-link.active { background: var(--primary-color); color: white !important; }
+    .nav-link.active::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 80%; height: 2px; background: var(--primary-color); border-radius: 1px; }
+    .theme-toggle { position: fixed; top: 6rem; right: 2rem; z-index: 999; width: 60px; height: 60px; border-radius: 50%; background: var(--card-light); border: 2px solid var(--border-light); box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; }
+    .theme-toggle:hover { transform: translateY(-2px) scale(1.05); box-shadow: var(--shadow-xl); }
+    [data-theme="dark"] .theme-toggle { background: var(--card-dark); border-color: var(--border-dark); }
+    .main-container { padding: 3rem 0; min-height: calc(100vh - 200px); }
+    .page-header { text-align: center; margin-bottom: 3rem; }
+    .page-title { font-size: 3rem; font-weight: 700; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.5rem; }
+    .page-subtitle { font-size: 1.2rem; color: var(--text-muted-light); font-weight: 400; }
+    [data-theme="dark"] .page-subtitle { color: var(--text-muted-dark); }
+    .main-card { background: var(--card-light); border-radius: 1.5rem; box-shadow: var(--shadow-xl); border: 1px solid var(--border-light); overflow: hidden; margin-bottom: 2rem; }
+    [data-theme="dark"] .main-card { background: var(--card-dark); border-color: var(--border-dark); }
+    .card-header { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 2rem; position: relative; overflow: hidden; }
+    .card-header::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); animation: shimmer 3s infinite; }
+    @keyframes shimmer { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .card-title { font-size: 2rem; font-weight: 700; margin: 0; position: relative; z-index: 1; display: flex; align-items: center; gap: 0.75rem; }
+    .title-icon { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .card-body { padding: 2.5rem; }
+    .form-section { margin-bottom: 2rem; }
+    .form-label { font-weight: 600; color: var(--text-light); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; }
+    [data-theme="dark"] .form-label { color: var(--text-dark); }
+    .form-select, .form-control { border: 2px solid var(--border-light); border-radius: 0.75rem; padding: 1rem; font-size: 1rem; background: var(--card-light); color: var(--text-light); transition: all 0.3s ease; }
+    [data-theme="dark"] .form-select, [data-theme="dark"] .form-control { border-color: var(--border-dark); background: var(--card-dark); color: var(--text-dark); }
+    .form-select:focus, .form-control:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25); }
+    .upload-box { border: 2px dashed var(--border-light); padding: 3rem 2rem; text-align: center; border-radius: 1rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(6, 182, 212, 0.05)); cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+    [data-theme="dark"] .upload-box { background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1)); border-color: var(--border-dark); color: var(--text-muted-dark); }
+    .upload-box:hover { border-color: var(--primary-color); background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1)); transform: translateY(-2px); }
+    .upload-box::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%); border-radius: 50%; z-index: 0; }
+    .upload-content { position: relative; z-index: 1; }
+    .upload-icon { font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem; }
+    .upload-text { font-size: 1.1rem; font-weight: 500; color: var(--text-muted-light); }
+    [data-theme="dark"] .upload-text { color: var(--text-muted-dark); }
+    .btn-section { text-align: center; margin: 2rem 0; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn { padding: 0.75rem 2rem; border-radius: 2rem; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; border: none; position: relative; overflow: hidden; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; }
+    .btn-primary:hover { background: linear-gradient(135deg, var(--primary-dark), var(--primary-color)); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .btn-outline-secondary { background: transparent; border: 2px solid var(--border-light); color: var(--text-muted-light); }
+    [data-theme="dark"] .btn-outline-secondary { border-color: var(--border-dark); color: var(--text-muted-dark); }
+    .btn-outline-secondary:hover { background: var(--primary-color); border-color: var(--primary-color); color: white; transform: translateY(-2px); }
+    .btn-outline-danger { background: transparent; border: 2px solid var(--danger-color); color: var(--danger-color); }
+    .btn-outline-danger:hover { background: var(--danger-color); color: white; transform: translateY(-2px); }
+    .preview-box, .feedback-box { background: var(--card-light); border: 2px solid var(--border-light); border-left: 4px solid var(--primary-color); border-radius: 1rem; padding: 1.5rem; font-family: 'Courier New', monospace; font-size: 0.95rem; white-space: pre-wrap; color: var(--text-light); margin-top: 1rem; box-shadow: var(--shadow); }
+    [data-theme="dark"] .preview-box, [data-theme="dark"] .feedback-box { background: var(--card-dark); border-color: var(--border-dark); color: var(--text-dark); }
+    .result-header { font-weight: 600; color: var(--text-muted-light); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; }
+    [data-theme="dark"] .result-header { color: var(--text-muted-dark); }
+    #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 2000; display: none; }
+    .loading-content { text-align: center; background: var(--card-light); padding: 3rem; border-radius: 1.5rem; box-shadow: var(--shadow-xl); border: 1px solid var(--border-light); }
+    [data-theme="dark"] .loading-content { background: var(--card-dark); border-color: var(--border-dark); }
+    .loading-spinner { width: 4rem; height: 4rem; border: 4px solid rgba(99, 102, 241, 0.3); border-radius: 50%; border-top-color: var(--primary-color); animation: spin 1s ease-in-out infinite; margin-bottom: 1.5rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 1.2rem; font-weight: 600; color: var(--primary-color); }
+    #toast-container { position: fixed; top: 2rem; right: 2rem; z-index: 1050; }
+    .toast { border-radius: 1rem; box-shadow: var(--shadow-lg); border: none; }
+    @media (max-width: 768px) {
+      .theme-toggle { top: 5rem; right: 1rem; width: 50px; height: 50px; font-size: 1.2rem; }
+      .page-title { font-size: 2rem; }
+      .card-header { padding: 1.5rem; }
+      .card-title { font-size: 1.5rem; }
+      .card-body { padding: 1.5rem; }
+      .btn-section { flex-direction: column; align-items: center; }
+      .btn { width: 100%; max-width: 300px; }
+      .upload-box { padding: 2rem 1rem; }
+      .upload-icon { font-size: 2rem; }
+    }
+    .fade-in { animation: fadeIn 0.5s ease-out; }
+    .slide-up { animation: slideUp 0.6s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+
+<body>
+  <!-- 主題切換按鈕 -->
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="切換主題">
+    <i class="fas fa-moon" id="theme-icon"></i>
+  </button>
+
+  <!-- 導覽列 -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-graduation-cap me-2"></i>教師系統
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="assignment_mark.html">
+              <i class="fas fa-users me-1"></i>作業批改
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="teacher_upload.html">
+              <i class="fas fa-upload me-1"></i>作業發布
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="classmember.html">
+              <i class="fas fa-user-friends me-1"></i>課程成員管理
+            </a>
+          </li>
+        </ul>
+        <a href="homepage.html" class="btn btn-outline-danger">
+          <i class="fas fa-sign-out-alt me-1"></i>登出
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 右側批改進度懸浮元件 -->
+  <div id="gradingProgressFloating" style="display:none; position:fixed; top:6rem; right:2rem; z-index:3000; min-width:280px; background:var(--card-light); border:2px solid var(--primary-color); border-radius:1.2rem; box-shadow:var(--shadow-xl); padding:1.5rem 2rem; text-align:center; font-size:1.1rem; transition:all 0.3s;">
+    <div id="gradingProgressStatus" style="font-weight:700; color:var(--primary-color); font-size:1.2rem; margin-bottom:0.5rem;">
+      <i class="fas fa-spinner fa-spin me-2"></i>批改進度
+    </div>
+    <div id="gradingProgressText"></div>
+    <div id="gradingProgressFile" style="margin-top:0.5rem; color:var(--primary-color); font-weight:600;"></div>
+    <div id="gradingProgressEta" style="margin-top:0.5rem; color:var(--text-muted-light); font-size:0.95rem;"></div>
+  </div>
+
+  <!-- 主要內容 -->
+  <div class="container main-container">
+    <!-- 頁面標題 -->
+    <div class="page-header fade-in">
+      <h1 class="page-title">作業批改</h1>
+      <p class="page-subtitle">上傳學生程式碼，AI 即時批改與回饋</p>
+    </div>
+
+    <!-- 主要卡片 -->
+    <div class="main-card slide-up">
+      <div class="card-header">
+        <h2 class="card-title">
+          <div class="title-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          作業批改系統
+        </h2>
+      </div>
+
+      <div class="card-body">
+        <!-- 題目選擇 -->
+        <div class="form-section">
+          <label class="form-label">
+            <i class="fas fa-book"></i>
+            選擇題目
+          </label>
+          <select id="problemSelect" class="form-select">
+            <option value="">請選擇題目</option>
+          </select>
+        </div>
+
+       
+        <!-- 上傳模式（單獨＝資料夾、批量＝多檔） -->
+        <div class="form-section">
+          <label class="form-label">
+            <i class="fas fa-list-check"></i>
+            上傳模式
+          </label>
+          <div class="btn-group" role="group" aria-label="上傳模式" id="modeGroup">
+            <input type="radio" class="btn-check" name="uploadMode" id="modeSingle" autocomplete="off" checked>
+            <label class="btn btn-outline-secondary" for="modeSingle">
+              <i class="fas fa-folder-open me-1"></i> 單獨上傳（資料夾）
+            </label>
+
+            <input type="radio" class="btn-check" name="uploadMode" id="modeBatch" autocomplete="off">
+            <label class="btn btn-outline-secondary" for="modeBatch">
+              <i class="fas fa-files me-1"></i> 批量上傳（多檔）
+            </label>
+          </div>
+        </div>
+        <!-- AI 評分模型 -->
+        <div class="form-section" id="llmRow">
+          <label for="llmProvider" class="form-label">
+            <i class="fas fa-robot"></i> AI 評分模型
+          </label>
+          <select id="llmProvider" class="form-select" style="max-width:260px;">
+            <option value="gemini">Gemini（雲端）</option>
+            <option value="codellama" selected>Code Llama（本機）</option>
+          </select>
+        </div>
+
+
+        <!-- 上傳檔案 -->
+        <div class="form-section">
+          <label class="form-label">
+            <i class="fas fa-cloud-upload-alt"></i>
+            上傳程式碼檔案
+          </label>
+          <div style="display: flex; gap: 2rem; align-items: flex-start;">
+            <label for="fileInput" class="upload-box" id="uploadLabel">
+              <div class="upload-content">
+                <div class="upload-icon">
+                  <i class="fas fa-file-code"></i>
+                </div>
+                <div class="upload-text">
+                  拖曳或點擊這裡上傳檔案<br>
+                  <small>支援 .py, .js, .cpp, .java, .txt 等格式</small>
+                </div>
+              </div>
+              <input type="file" id="fileInput" accept=".py,.js,.java,.cpp,.txt" hidden multiple>
+            </label>
+            <div id="fileListBox" style="min-width:180px;">
+              <strong>已選檔案：</strong>
+              <ul id="fileList" style="margin:0; padding-left:1.2em;"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 操作按鈕 -->
+        <div class="btn-section">
+          <button class="btn btn-primary" onclick="gradeCode()">
+            <i class="fas fa-paper-plane me-2"></i>批改並回饋
+          </button>
+        </div>
+
+        <!-- AI 回饋區域 -->
+        <div id="feedbackBoxContainer" class="d-none">
+          <h6 class="result-header">
+            <i class="fas fa-robot"></i>
+            AI 批改與回饋
+          </h6>
+          <div id="feedbackBox" class="feedback-box"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast 容器 -->
+  <div id="toast-container"></div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // DOM 元素
+    const fileInput = document.getElementById("fileInput");
+    const feedbackBox = document.getElementById("feedbackBox");
+    const feedbackContainer = document.getElementById("feedbackBoxContainer");
+    const fileList = document.getElementById("fileList");
+    const modeSingle = document.getElementById('modeSingle');
+    const modeBatch = document.getElementById('modeBatch');
+
+    // 檔案上傳處理
+    let uploadedFiles = [];
+
+    fileInput.addEventListener("change", function () {
+      const allowed = new Set([".py", ".js", ".java", ".cpp", ".c", ".txt"]);
+      const isFolderMode = modeSingle.checked;
+
+      const files = Array.from(this.files || []);
+      if (files.length === 0) {
+        uploadedFiles = [];
+        fileList.innerHTML = "";
+        return;
+      }
+
+      if (isFolderMode) {
+        // 檢查是否同一個根資料夾（依 webkitRelativePath 的第一段）
+        const relPaths = files.map(f => f.webkitRelativePath || f.name);
+        const roots = relPaths.map(p => (p.includes("/") ? p.split("/")[0] : ""));
+        const uniqueRoots = Array.from(new Set(roots.filter(r => r !== "")));
+        if (uniqueRoots.length > 1) {
+          showToast(`請選擇「同一個」資料夾（目前偵測到 ${uniqueRoots.length} 個）`, "danger");
+          uploadedFiles = [];
+          fileList.innerHTML = "";
+          fileInput.value = "";
+          return;
+        }
+
+        // 過濾副檔名
+        const filtered = files.filter(f => {
+          const ext = (f.name.match(/\.[^.]+$/)?.[0] || "").toLowerCase();
+          return allowed.has(ext);
+        });
+        const dropped = files.length - filtered.length;
+        uploadedFiles = filtered;
+
+        // 顯示相對路徑，讓老師看到資料夾結構
+        fileList.innerHTML = uploadedFiles
+          .map(f => `<li>${f.webkitRelativePath || f.name}</li>`)
+          .join("");
+
+        let msg = `資料夾內找到 ${uploadedFiles.length} 個可用檔案`;
+        if (dropped > 0) msg += `（已忽略 ${dropped} 個不支援的副檔名）`;
+        showToast(msg, "success");
+      } else {
+        // 批量上傳（多檔）模式
+        const filtered = files.filter(f => {
+          const ext = (f.name.match(/\.[^.]+$/)?.[0] || "").toLowerCase();
+          return allowed.has(ext);
+        });
+        const dropped = files.length - filtered.length;
+        uploadedFiles = filtered;
+
+        fileList.innerHTML = uploadedFiles.map(f => `<li>${f.name}</li>`).join("");
+        let msg = `已選擇 ${uploadedFiles.length} 個檔案`;
+        if (dropped > 0) msg += `（已忽略 ${dropped} 個不支援的副檔名）`;
+        showToast(msg, "success");
+      }
+    });
+
+
+
+    // 依模式切換 input.multiple 與上傳提示文案
+    function applyUploadMode() {
+      const isFolderMode = modeSingle.checked; // 單獨上傳 = 上傳一個資料夾
+
+      // 重置狀態
+      uploadedFiles = [];
+      fileInput.value = "";
+      fileList.innerHTML = "";
+
+      if (isFolderMode) {
+        // 資料夾選擇（Chrome/Edge/Opera 支援；Firefox 請用拖曳資料夾）
+        fileInput.setAttribute('webkitdirectory', '');
+        fileInput.setAttribute('directory', '');
+        fileInput.multiple = true; // 資料夾內會有多檔
+        document.querySelector('#uploadLabel .upload-text').innerHTML =
+          '拖曳或點擊這裡上傳<b>整個資料夾</b><br><small>會自動擷取 .py, .js, .cpp, .c, .java, .txt</small>';
+      } else {
+        // 批量模式：一般多檔
+        fileInput.removeAttribute('webkitdirectory');
+        fileInput.removeAttribute('directory');
+        fileInput.multiple = true;
+        document.querySelector('#uploadLabel .upload-text').innerHTML =
+          '拖曳或點擊這裡上傳檔案（可多選）<br><small>支援 .py, .js, .cpp, .c, .java, .txt 等格式</small>';
+      }
+    }
+
+
+    // 讓切換真的生效（你目前檔案沒有這三行）
+    modeSingle.addEventListener('change', applyUploadMode);
+    modeBatch.addEventListener('change', applyUploadMode);
+    applyUploadMode(); // 頁面載入先套一次（預設單獨＝資料夾）
+
+
+    // 載入保存的主題
+    function loadTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      html.setAttribute('data-theme', savedTheme);
+      themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // 優化後的批改進度元件控制
+    function showGradingProgress(finished, total, status, filename, etaSec) {
+      const floating = document.getElementById('gradingProgressFloating');
+      const text = document.getElementById('gradingProgressText');
+      const fileDiv = document.getElementById('gradingProgressFile');
+      const etaDiv = document.getElementById('gradingProgressEta');
+      const statusDiv = document.getElementById('gradingProgressStatus');
+
+      // 狀態圖示
+      let statusIcon = "⏳";
+      let statusText = "排隊中";
+      if (status === "running") {
+        statusIcon = "🔄";
+        statusText = "批改中";
+      } else if (status === "done") {
+        statusIcon = "✅";
+        statusText = "已完成";
+      }
+      statusDiv.innerHTML = `<span style="font-size:1.5rem;">${statusIcon}</span> ${statusText}（${finished}/${total}）`;
+
+      // 進度文字
+      text.innerHTML = `已完成 <b>${finished}</b> / <b>${total}</b>`;
+
+      // 目前處理檔案
+      if (filename) {
+        fileDiv.textContent = `目前處理：${filename}`;
+        fileDiv.style.display = "";
+      } else {
+        fileDiv.style.display = "none";
+      }
+
+      // 剩餘時間估計
+      if (etaSec !== undefined && etaSec !== null && !isNaN(etaSec)) {
+        let etaStr = "";
+        if (etaSec < 60) {
+          etaStr = `${Math.round(etaSec)} 秒`;
+        } else {
+          etaStr = `${Math.floor(etaSec / 60)} 分 ${Math.round(etaSec % 60)} 秒`;
+        }
+        etaDiv.textContent = `預估剩餘時間：${etaStr}`;
+        etaDiv.style.display = "";
+      } else {
+        etaDiv.style.display = "none";
+      }
+      floating.style.display = '';
+    }
+    function hideGradingProgress() {
+      document.getElementById('gradingProgressFloating').style.display = 'none';
+    }
+
+    // 批改功能
+    async function gradeCode() {
+      const selectedProblemId = document.getElementById("problemSelect").value;
+        if (!selectedProblemId) {
+          showToast("請選擇題目", "danger");
+          return;
+        }
+        if (uploadedFiles.length === 0) {
+          showToast("請先上傳至少一個檔案", "danger");
+          return;
+        }
+
+        if (modeSingle.checked) {
+          await gradeCodeSingle(Number(selectedProblemId));
+        } else {
+          await gradeCodeBatch(Number(selectedProblemId));
+        }
+    }
+
+    async function gradeCodeSingle(problemId) {
+      // 單獨上傳＝上傳一個資料夾，實際上也是送 /batch_grade
+      const token = localStorage.getItem("token");
+      if (!uploadedFiles || uploadedFiles.length === 0) {
+        showToast("請先選擇一個資料夾", "danger");
+        return;
+      }
+
+      feedbackBox.textContent = "";
+      feedbackContainer.classList.remove("d-none");
+
+      // 準備 payload：把資料夾內所有檔案一個個讀進來
+      const filesPayload = await Promise.all(
+        uploadedFiles.map(async f => {
+          const code = await f.text();
+          return {
+            filename: f.name,     // 用副檔名讓後端選工具鏈
+            code,
+            problem_id: problemId
+          };
+        })
+      );
+
+      // 取資料夾名做提示
+      let folderHint = "";
+      const firstRel = uploadedFiles[0].webkitRelativePath || uploadedFiles[0].name;
+      if (firstRel.includes("/")) folderHint = firstRel.split("/")[0];
+
+      let taskId;
+      try {
+        const provider = document.getElementById("llmProvider").value;
+        const res = await fetch(`http://localhost:8000/batch_grade?model=${provider}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+          body: JSON.stringify({ files: filesPayload })
+        });
+
+        const body = await res.json();
+        if (!res.ok) {
+          showToast("提交批改任務失敗", "danger");
+          feedbackBox.textContent = `❗ 提交任務錯誤：${body.detail || JSON.stringify(body)}`;
+          return;
+        }
+        taskId = body.task_id;
+        showToast(`已建立批改任務${folderHint ? `（資料夾：${folderHint}）` : ""}`, "success");
+        showGradingProgress(0, filesPayload.length, "running", folderHint ? `${folderHint}/...` : "");
+      } catch (e) {
+        showToast("無法送出批改任務", "danger");
+        return;
+      }
+
+      // 輪詢狀態（沿用你批量版本）
+      const pollInterval = 2000;
+      let lastFinished = 0, lastTime = Date.now(), avgTimePerFile = null;
+
+      const polling = setInterval(async () => {
+        try {
+          const s = await fetch(`http://localhost:8000/batch_grade/status/${taskId}`);
+          const data = await s.json();
+          if (!s.ok) throw new Error("status fetch error");
+
+          const total = data.total || filesPayload.length;
+          const finished = data.finished || 0;
+          const status = data.status || "pending";
+
+          // ETA 粗估
+          let etaSec = null;
+          if (finished > 0) {
+            const now = Date.now();
+            const elapsed = (now - lastTime) / 1000;
+            const delta = finished - lastFinished;
+            if (delta > 0) {
+              avgTimePerFile = elapsed / delta;
+              lastFinished = finished;
+              lastTime = now;
+            }
+            if (avgTimePerFile) etaSec = avgTimePerFile * (total - finished);
+          }
+
+          // 顯示目前檔名（相對路徑）
+          let filename = "";
+          if (data.results && data.results.length < total && data.results.length >= 0) {
+            const nextIdx = data.results.length;
+            if (filesPayload[nextIdx]) {
+              filename = (uploadedFiles[nextIdx].webkitRelativePath || filesPayload[nextIdx].filename);
+            }
+          }
+          showGradingProgress(finished, total, status, filename, etaSec);
+
+          if ((data.status === "done" && (data.finished || 0) >= (data.total || filesPayload.length))|| data.status === "not_found") {
+            clearInterval(polling);
+            hideGradingProgress();
+            if (data.status === "not_found") {
+              showToast("找不到批改任務結果", "danger");
+              feedbackBox.textContent = "找不到該批改任務的結果。";
+              return;
+            }
+            // 用你原本的結果輸出風格
+            feedbackBox.textContent = "";
+            for (const r of data.results || []) {
+              if (r.error) {
+                feedbackBox.textContent += `\n--- [${r.filename}] ---\n錯誤: ${r.error}\n`;
+                continue;
+              }
+              const passCount = (r.detailed_results || []).filter(x => x.correct).length;
+              const totalCases = (r.detailed_results || []).length;
+              const passRate = totalCases ? ((passCount / totalCases) * 100).toFixed(1) : "0.0";
+              feedbackBox.textContent += `\n--- [${r.filename}] ---\nAI 分數: ${r.ai_score}\n測資通過: ${passCount}/${totalCases} (${passRate}%)\n回饋:\n${r.ai_feedback}\n`;
+            }
+            feedbackContainer.classList.remove("d-none");
+            feedbackContainer.scrollIntoView({ behavior: 'smooth' });
+            showToast("資料夾批改完成，結果已在後端儲存", "success");
+            exportResults(data.results, "xlsx");
+          }
+        } catch (err) {
+          clearInterval(polling);
+          hideGradingProgress();
+          showToast("輪詢批改狀態失敗", "danger");
+        }
+      }, pollInterval);
+    }
+
+
+    async function gradeCodeBatch(problemId) {
+      const token = localStorage.getItem("token");
+      feedbackBox.textContent = "";
+      feedbackContainer.classList.remove("d-none");
+
+      const filesPayload = await Promise.all(uploadedFiles.map(async f => {
+        const code = await f.text();
+        return { filename: f.name, code, problem_id: problemId };
+      }));
+
+      let taskId;
+      try {
+        const provider = document.getElementById("llmProvider").value;
+        const res = await fetch(`http://localhost:8000/batch_grade?model=${provider}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+          body: JSON.stringify({ files: filesPayload })
+        });
+        const body = await res.json();
+        if (!res.ok) {
+          showToast("提交批改任務失敗", "danger");
+          feedbackBox.textContent = `❗ 提交任務錯誤：${body.detail || JSON.stringify(body)}`;
+          return;
+        }
+        taskId = body.task_id;
+        showToast("已建立批改任務，開始在伺服器後台處理", "success");
+        showGradingProgress(0, filesPayload.length);
+      } catch (e) {
+        showToast("無法送出批改任務", "danger");
+        return;
+      }
+
+      // 輪詢（修正為 path 參數）
+      const pollInterval = 2000;
+      let lastFinished = 0;
+      let lastTime = Date.now();
+      let avgTimePerFile = null;
+      const polling = setInterval(async () => {
+        try {
+          const s = await fetch(`http://localhost:8000/batch_grade/status/${taskId}`);
+          const data = await s.json();
+          if (s.ok) {
+            const total = data.total || filesPayload.length;
+            const finished = data.finished || 0;
+            const status = data.status || "pending";
+            let filename = "";
+            if (data.results && data.results.length < total && data.results.length > 0) {
+              const nextIdx = data.results.length;
+              if (filesPayload[nextIdx]) filename = filesPayload[nextIdx].filename;
+            }
+            // ETA 粗估
+            let etaSec = null;
+            if (finished > 0) {
+              const now = Date.now();
+              const elapsed = (now - lastTime) / 1000;
+              const delta = finished - lastFinished;
+              if (delta > 0) {
+                avgTimePerFile = elapsed / delta;
+                lastFinished = finished;
+                lastTime = now;
+              }
+              if (avgTimePerFile) {
+                etaSec = avgTimePerFile * (total - finished);
+              }
+            }
+            showGradingProgress(finished, total, status, filename, etaSec);
+
+            if ((data.status === "done" && (data.finished || 0) >= (data.total || filesPayload.length)) || data.status === "not_found") {
+              clearInterval(polling);
+              hideGradingProgress();
+              if (data.status === "not_found") {
+                showToast("找不到批改任務結果", "danger");
+                feedbackBox.textContent = "找不到該批改任務的結果。";
+                return;
+              }
+              // 顯示批量結果（沿用你原本的格式）
+              feedbackBox.textContent = "";
+              for (const r of data.results || []) {
+                if (r.error) {
+                  feedbackBox.textContent += `\n--- [${r.filename}] ---\n錯誤: ${r.error}\n`;
+                  continue;
+                }
+                const passCount = (r.detailed_results || []).filter(x => x.correct).length;
+                const totalCases = (r.detailed_results || []).length;
+                const passRate = totalCases ? ((passCount / totalCases) * 100).toFixed(1) : "0.0";
+                feedbackBox.textContent += `\n--- [${r.filename}] ---\nAI 分數: ${r.ai_score}\n測資通過: ${passCount}/${totalCases} (${passRate}%)\n回饋:\n${r.ai_feedback}\n`;
+              }
+              feedbackContainer.classList.remove("d-none");
+              feedbackContainer.scrollIntoView({ behavior: 'smooth' });
+              showToast("批改完成，結果已在後端儲存", "success");
+              exportResults(data.results, "xlsx");
+            }
+          } else {
+            clearInterval(polling);
+            hideGradingProgress();
+            showToast("取得批改狀態失敗", "danger");
+          }
+        } catch (err) {
+          clearInterval(polling);
+          hideGradingProgress();
+          showToast("輪詢批改狀態失敗", "danger");
+        }
+      }, pollInterval);
+    }
+
+
+    function showToast(message, type = "info") {
+      const toast = document.createElement("div");
+      toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
+      toast.role = "alert";
+      toast.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">${message}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>`;
+      document.getElementById("toast-container").appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    // 初始化主題與題目
+    document.addEventListener("DOMContentLoaded", async function () {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) {
+        document.documentElement.setAttribute("data-theme", savedTheme);
+      }
+      // 題目載入
+      try {
+        const res = await fetch("http://localhost:8000/api/problems/");
+        const problems = await res.json();
+        const problemSelect = document.getElementById("problemSelect");
+        problems.forEach(problem => {
+          const option = document.createElement("option");
+          option.value = problem.id;
+          option.textContent = problem.title;
+          problemSelect.appendChild(option);
+        });
+      } catch (error) {
+        showToast("無法載入題目列表", "danger");
+      }
+    });
+
+    // === 匯出成 Excel 或 TXT ===
+    function exportResults(results, format = "xlsx") {
+        if (!results || results.length === 0) {
+            showToast("沒有可匯出的批改結果", "danger");
+            return;
+        }
+
+        const now = new Date();
+        const timestamp = now.toISOString().replace(/[:.]/g, "-");
+        const filename = `grading_results_${timestamp}`;
+
+        // 整理成表格資料
+        const rows = results.map(r => ({
+            檔名: r.filename || "",
+            分數: r.ai_score ?? "",
+            回饋: r.ai_feedback?.replace(/\n/g, " ") ?? "",
+            批改時間: now.toLocaleString(),
+        }));
+
+        if (format === "xlsx") {
+            // 使用 SheetJS 匯出 Excel
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(rows);
+            XLSX.utils.book_append_sheet(wb, ws, "批改結果");
+            XLSX.writeFile(wb, `${filename}.xlsx`);
+            showToast("已匯出 Excel 檔", "success");
+        } else {
+            // 匯出純文字
+            const text = rows.map(r => 
+                `檔名: ${r.檔名}\n分數: ${r.分數}\n回饋: ${r.回饋}\n時間: ${r.批改時間}\n---`
+            ).join("\n\n");
+            const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `${filename}.txt`;
+            a.click();
+            showToast("已匯出 TXT 檔", "success");
+        }
+    }
+
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>

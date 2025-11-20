@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>程式練習 - 程式學習平台</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/monokai.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 字型 Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <!-- 自訂樣式 -->
+    <style>
+        :root {
+            --bg-light: #f5f7fa;
+            --bg-dark: #121212;
+            --card-light: #ffffff;
+            --card-dark: #1f1f1f;
+            --text-light: #212529;
+            --text-dark: #e9ecef;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            transition: background-color .3s, color .3s;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .practice-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+
+        .left-panel, .right-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: auto;
+        }
+
+        .mode-info {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4299e1;
+        }
+
+        .mode-info h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .mode-info p, .mode-info li {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        /* 檔案上傳區域樣式 */
+        .file-upload-section {
+            background: #f0f8ff;
+            border: 2px dashed #4299e1;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-section:hover {
+            background: #e6f3ff;
+            border-color: #3182ce;
+        }
+
+        .file-upload-section.dragover {
+            background: #bee3f8;
+            border-color: #2b6cb0;
+            transform: scale(1.02);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-upload-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .file-upload-btn:hover {
+            background: #3182ce;
+        }
+
+        .file-info {
+            margin-top: 10px;
+            padding: 8px;
+            background: #e6fffa;
+            border: 1px solid #38b2ac;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #234e52;
+        }
+
+        /* 測資輸入區域 */
+        .test-input-section {
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .test-input-section h4 {
+            color: #ff8f00;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .test-input-area {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px;
+            border: 1px solid #ffcc02;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .test-input-area::placeholder {
+            color: #999;
+        }
+
+        .code-editor {
+            height: 400px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .CodeMirror {
+            height: 100%;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-run {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-run:hover:not(:disabled) {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-clear {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-clear:hover:not(:disabled) {
+            background: #dd6b20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(237, 137, 54, 0.3);
+        }
+
+        .btn-test {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-test:hover:not(:disabled) {
+            background: #ffb300;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        /* 按鈕loading狀態 */
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .results-section {
+            height: calc(100% - 100px);
+            overflow-y: auto;
+        }
+
+        .output-panel {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+            min-height: 200px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .output-panel.error {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .output-panel.test-mode {
+            background: #fff8e1;
+            color: #333;
+            border: 2px solid #ffc107;
+        }
+
+        .test-results {
+            margin-top: 15px;
+        }
+
+        .test-case {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .test-case.success {
+            border-color: #68d391;
+            background: #f0fff4;
+        }
+
+        .test-case.error {
+            border-color: #fc8181;
+            background: #fffafa;
+        }
+
+        .test-case-header {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-icon {
+            font-size: 16px;
+        }
+
+        .test-details {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4299e1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #68d391;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #fc8181;
+        }
+
+        .info-message {
+            background: #e6f3ff;
+            color: #0c4a6e;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #0ea5e9;
+        }
+
+        @media (max-width: 768px) {
+            .practice-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .left-panel, .right-panel {
+                min-height: 400px;
+            }
+
+            .controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar-placeholder"></div>
+
+    <script>
+    fetch('/static/navbar.html')
+        .then(res => res.text())
+        .then(html => {
+        document.getElementById('navbar-placeholder').innerHTML = html;
+        });
+    </script>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎯 自由程式練習</h1>
+            <p>在這裡你可以自由練習程式碼，測試你的想法，並使用自定義測資驗證程式！</p>
+        </div>
+
+        <div class="practice-container">
+            <div class="left-panel">
+                <div class="mode-info">
+                    <h3>🖊️ 自由練習模式</h3>
+                    <p>在這個模式下，你可以：</p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>自由編寫 Python 程式碼</li>
+                        <li>測試各種程式邏輯</li>
+                        <li>練習新學到的語法</li>
+                        <li>實驗你的程式想法</li>
+                        <li>上傳本地 Python 檔案</li>
+                        <li>使用自定義測資驗證程式</li>
+                    </ul>
+                </div>
+
+                <!-- 檔案上傳區域 -->
+                <div class="file-upload-section" id="fileUploadArea">
+                    <div>
+                        <p>📁 上傳 Python 檔案</p>
+                        <button class="file-upload-btn" onclick="document.getElementById('fileInput').click()">
+                            選擇檔案
+                        </button>
+                        <p style="margin-top: 8px; font-size: 12px; color: #666;">
+                            或拖拽 .py 檔案到此區域
+                        </p>
+                    </div>
+                    <input type="file" id="fileInput" class="file-input" accept=".py" onchange="handleFileSelect(event)">
+                    <div id="fileInfo" class="file-info" style="display: none;"></div>
+                </div>
+
+                <!-- 測資輸入區域 -->
+                <div class="test-input-section">
+                    <h4>🧪 自定義測資</h4>
+                    <textarea 
+                        id="testInput" 
+                        class="test-input-area" 
+                        placeholder="輸入測試資料（每行一個輸入，程式會依序讀取）&#10;例如：&#10;5&#10;hello world&#10;3.14"
+                    ></textarea>
+                    <p style="font-size: 12px; color: #666; margin-top: 8px;">
+                        💡 提示：如果程式需要輸入，請在這裡提供測試資料
+                    </p>
+                </div>
+
+                <div class="code-editor">
+                    <textarea id="codeEditor"># 歡迎來到自由程式練習！
+# 在這裡寫下你的 Python 程式碼
+
+print("Hello, World!")
+print("開始你的程式練習之旅吧！")
+
+# 如果需要輸入，可以使用 input() 函數
+# name = input("請輸入你的名字：")
+# print(f"你好，{name}！")
+</textarea>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-run" id="runBtn" onclick="runCode(false)">
+                        ▶️ 執行程式
+                    </button>
+                    <button class="btn btn-test" id="testBtn" onclick="runCode(true)">
+                        🧪 使用測資執行
+                    </button>
+                    <button class="btn btn-clear" onclick="clearCode()">
+                        🗑️ 清空代碼
+                    </button>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <h3>📊 執行結果</h3>
+                
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>程式執行中...</p>
+                </div>
+
+                <div class="results-section">
+                    <div id="output" class="output-panel">
+                        點擊「執行程式」查看結果...
+                    </div>
+
+                    <div id="test-results" class="test-results" style="display: none;">
+                        <h4>🧪 測試執行詳情</h4>
+                        <div id="test-cases"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/python/python.min.js"></script>
+    <script>
+        let editor;
+
+        // 初始化 CodeMirror 編輯器
+        function initEditor() {
+            editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+                mode: 'python',
+                theme: 'monokai',
+                lineNumbers: true,
+                indentUnit: 4,
+                tabSize: 4,
+                indentWithTabs: false,
+                lineWrapping: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                styleActiveLine: true
+            });
+        }
+
+        // 檔案拖拽處理
+        function initFileUpload() {
+            const uploadArea = document.getElementById('fileUploadArea');
+            
+            // 防止預設行為
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            // 添加拖拽樣式
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => {
+                    uploadArea.classList.add('dragover');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => {
+                    uploadArea.classList.remove('dragover');
+                }, false);
+            });
+
+            // 處理檔案拖拽
+            uploadArea.addEventListener('drop', handleDrop, false);
+        }
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            
+            const file = files[0];
+            
+            // 檢查檔案類型
+            if (!file.name.endsWith('.py')) {
+                alert('請選擇 Python 檔案 (.py)');
+                return;
+            }
+
+            // 檢查檔案大小 (限制 1MB)
+            if (file.size > 1024 * 1024) {
+                alert('檔案大小不能超過 1MB');
+                return;
+            }
+
+            // 讀取檔案內容
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                editor.setValue(content);
+                
+                // 顯示檔案資訊
+                const fileInfo = document.getElementById('fileInfo');
+                fileInfo.innerHTML = `
+                    ✅ 已載入檔案: <strong>${file.name}</strong> 
+                    (${(file.size / 1024).toFixed(1)} KB)
+                `;
+                fileInfo.style.display = 'block';
+                
+                // 3秒後隱藏檔案資訊
+                setTimeout(() => {
+                    fileInfo.style.display = 'none';
+                }, 3000);
+            };
+            
+            reader.onerror = function() {
+                alert('讀取檔案時發生錯誤');
+            };
+            
+            reader.readAsText(file, 'utf-8');
+        }
+
+        // 執行程式碼 - 支援自訂測資
+async function runCode() {
+    const code = editor.getValue();
+    if (!code.trim()) {
+        alert('請先輸入程式碼！');
+        return;
+    }
+
+    // 禁用執行按鈕並顯示loading
+    const runBtn = document.getElementById('runBtn');
+    runBtn.disabled = true;
+    runBtn.classList.add('loading');
+    runBtn.innerHTML = '⏳ 執行中...';
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('output').textContent = '';
+    document.getElementById('test-results').style.display = 'none';
+    document.getElementById('ai-feedback').style.display = 'none';
+
+    try {
+        const token = localStorage.getItem('token');
+        
+        // 獲取測試資料
+        const testInput = document.getElementById('testInput') ? document.getElementById('testInput').value : '';
+        
+        // 準備請求數據
+        const requestData = {
+            code: code,
+            problem_id: currentProblemId ? parseInt(currentProblemId) : null
+        };
+        
+        // 如果有測試資料，添加到請求中
+        if (testInput.trim()) {
+            requestData.test_input = testInput.trim();
+        }
+        
+        const response = await fetch('/practice_code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+            displayResults(result, testInput.trim() !== '');
+        } else {
+            throw new Error(result.detail || '執行失敗');
+        }
+    } catch (error) {
+        document.getElementById('output').className = 'output-panel error';
+        document.getElementById('output').textContent = `錯誤: ${error.message}`;
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+        // 恢復執行按鈕
+        runBtn.disabled = false;
+        runBtn.classList.remove('loading');
+        runBtn.innerHTML = '▶️ 執行程式';
+    }
+}
+
+// 顯示執行結果
+function displayResults(result, useTestData) {
+    const outputPanel = document.getElementById('output');
+    
+    if (result.execution_success) {
+        outputPanel.className = useTestData ? 'output-panel test-mode' : 'output-panel';
+        outputPanel.textContent = result.program_output || '(程式執行完成，無輸出)';
+        
+        // 如果使用測資且有相關資訊，顯示測試資訊
+        if (useTestData && result.test_info) {
+            showTestInfo(result.test_info);
+        }
+    } else {
+        outputPanel.className = 'output-panel error';
+        outputPanel.textContent = result.error_message || '執行失敗';
+    }
+
+    // 顯示測試結果（如果有）
+    if (result.test_results && result.test_results.length > 0) {
+        displayTestResults(result.test_results);
+    }
+}
+
+// 顯示測試資訊
+function showTestInfo(testInfo) {
+    const testSection = document.getElementById('test-results');
+    const testCasesDiv = document.getElementById('test-cases');
+    
+    testCasesDiv.innerHTML = '';
+    
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'info-message';
+    
+    let infoContent = `
+        <strong>📊 測試執行摘要</strong><br>
+        測試模式：已啟用<br>
+    `;
+    
+    if (testInfo.inputs_provided !== undefined) {
+        infoContent += `提供的輸入行數：${testInfo.inputs_provided}<br>`;
+    }
+    
+    if (testInfo.inputs_used !== undefined) {
+        infoContent += `程式使用的輸入數：${testInfo.inputs_used}<br>`;
+        
+        if (testInfo.inputs_used < testInfo.inputs_provided) {
+            infoContent += `<br>⚠️ 注意：程式只使用了部分測試輸入，還有 ${testInfo.inputs_provided - testInfo.inputs_used} 個輸入未被使用`;
+        } else if (testInfo.inputs_used === testInfo.inputs_provided) {
+            infoContent += `<br>✅ 所有測試輸入都已被程式使用`;
+        } else if (testInfo.inputs_used > testInfo.inputs_provided) {
+            infoContent += `<br>⚠️ 警告：程式嘗試讀取更多輸入，但測試資料不足`;
+        }
+    }
+    
+    if (testInfo.execution_time !== undefined) {
+        infoContent += `<br>執行時間：${testInfo.execution_time}ms`;
+    }
+    
+    infoDiv.innerHTML = infoContent;
+    testCasesDiv.appendChild(infoDiv);
+    testSection.style.display = 'block';
+}
+
+// 顯示測試結果
+function displayTestResults(testResults) {
+    const testSection = document.getElementById('test-results');
+    const testCasesDiv = document.getElementById('test-cases');
+    
+    // 如果已經有測試資訊，不要清空，而是添加
+    if (!testCasesDiv.querySelector('.info-message')) {
+        testCasesDiv.innerHTML = '';
+    }
+    
+    testResults.forEach(test => {
+        const testDiv = document.createElement('div');
+        testDiv.className = `test-case ${test.correct ? 'correct' : 'incorrect'}`;
+        
+        testDiv.innerHTML = `
+            <div class="test-case-header">
+                <span class="status-icon">${test.correct ? '✅' : '❌'}</span>
+                測試案例 ${test.test_case}
+            </div>
+            <div class="test-details">
+                <div><strong>期望輸出:</strong> ${test.expected}</div>
+                <div><strong>實際輸出:</strong> ${test.actual}</div>
+            </div>
+        `;
+        
+        testCasesDiv.appendChild(testDiv);
+    });
+    
+    testSection.style.display = 'block';
+}
+
+// 清空程式碼
+function clearCode() {
+    if (confirm('確定要清空所有程式碼嗎？')) {
+        editor.setValue('# 開始寫你的程式碼\n\n');
+        
+        // 清空測試輸入
+        if (document.getElementById('testInput')) {
+            document.getElementById('testInput').value = '';
+        }
+        
+        document.getElementById('output').className = 'output-panel';
+        document.getElementById('output').textContent = '點擊「執行程式」查看結果...';
+        document.getElementById('test-results').style.display = 'none';
+    }
+}
+
+// 頁面載入完成後初始化
+document.addEventListener('DOMContentLoaded', function() {
+    initEditor();
+    initFileUpload();
+    
+    // 檢查登入狀態 (如果需要)
+    // const token = localStorage.getItem('token');
+    // if (!token) {
+    //     alert('請先登入！');
+    //     window.location.href = '/';
+    //     return;
+    // }
+});
+    </script>
+</body>
+</html>

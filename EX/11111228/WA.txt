@@ -1,0 +1,35 @@
+import math
+
+while True:
+    a, b = list(map(int, input().split()))
+
+    if a == 0 and b ==0:
+        break 
+
+    else:
+        start = min(a, b)
+        end = max(a, b) - 1
+        square_root = 0
+
+        for i in range(start, end):
+            if (math.sqrt(i) - int(math.sqrt(i)) == 0):
+                square_root += 1
+        
+        print(square_root)
+
+# Diff output
+# Wrong answer on line 1 of output (corresponding to line 1 in answer file)
+# String tokens mismatch
+# Judge: "2"
+# Team: "1"
+
+# Program output
+# 1
+# 2
+# Program error output
+# There was no stderr output.
+
+# Judging system output (info/debug/errors)
+# Wrong answer.
+# runtime: 0.038s cpu, 0.051s wall
+# memory used: 21889024 bytes
